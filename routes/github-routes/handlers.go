@@ -1,27 +1,50 @@
 package github_routes
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"github.com/evscott/z3-e2c-api/models"
-	"log"
-	"net/http"
-
 	consts "github.com/evscott/z3-e2c-api/shared"
 	"github.com/google/go-github/github"
+	"io"
+	"log"
+	"net/http"
+	"strings"
 )
 
 type Config struct {
 	GAL *github.Client
 }
 
-func (c *Config) GetInfo(w http.ResponseWriter, r *http.Request) {}
+func (c *Config) GetInfo(w http.ResponseWriter, r *http.Request) {
+
+}
 
 func (c *Config) Test(w http.ResponseWriter, r *http.Request) {
 	req := &models.ReqCreateRef{}
 	consts.ParseReqJsonBody(req, w, r)
 	fmt.Printf("Body: %v\n", req)
 	w.WriteHeader(200)
+}
+
+func (c *Config) AddFile(w http.ResponseWriter, r *http.Request) {
+	var Buf bytes.Buffer
+	file, header, err := r.FormFile("file")
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	name := strings.Split(header.Filename, ".")
+	fmt.Printf("File name %s\n", name[0])
+	if _, err := io.Copy(&Buf, file); err != nil {
+		log.Fatal(err)
+	}
+
+	contents := Buf.String()
+	fmt.Println(contents)
+	Buf.Reset()
 }
 
 func (c *Config) CreateRepository(w http.ResponseWriter, r *http.Request) {
