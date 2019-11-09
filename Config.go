@@ -6,6 +6,7 @@ import (
 	"github.com/bndr/gojenkins"
 	"github.com/google/go-github/github"
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 	"golang.org/x/oauth2"
 	"log"
@@ -16,12 +17,13 @@ import (
 )
 
 type Specifications struct {
-	JenkinsHost      string `default:"http://localhost:8080"`
-	JenkinsUsername  string `default:"admin"`
-	JenkinsPassword  string `default:"admin"`
-	SrvPort          string `default:"9090"`
-	ReadWriteTimeOut string `default:"10"`
-	HostIP           string `default:"127.0.0.1"`
+	JenkinsHost       string `default:"http://localhost:8080"`
+	JenkinsUsername   string `default:"admin"`
+	JenkinsPassword   string `default:"admin"`
+	SrvPort           string `default:"9090"`
+	ReadWriteTimeOut  string `default:"10"`
+	HostIP            string `default:"127.0.0.1"`
+	GithubAccessToken string
 }
 
 type Config struct {
@@ -33,12 +35,17 @@ type Config struct {
 }
 
 func GetConfig(ctx context.Context, router *mux.Router) *Config {
-
 	/*****  Setup z3-12c-api specifications *****/
 	spec := Specifications{}
-	if err := envconfig.Process("JAC", &spec); err != nil {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	if err := envconfig.Process("Z3", &spec); err != nil {
 		log.Fatal(err)
 	}
+
+	fmt.Printf("Github access token: %s\n", spec.GithubAccessToken)
 
 	if ipAddr, err := net.InterfaceAddrs(); err != nil {
 		log.Fatal(err)
@@ -77,7 +84,7 @@ func GetConfig(ctx context.Context, router *mux.Router) *Config {
 	}
 
 	/***** Setup Github client *****/
-	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: "bfa3de7b45a5b9eeecf3aa4791a466c4cd5be071"})
+	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: config.Spec.GithubAccessToken})
 	tc := oauth2.NewClient(ctx, ts)
 	githubClient := github.NewClient(tc)
 	config.GithubClient = githubClient

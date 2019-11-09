@@ -25,5 +25,6 @@ const (
 
 /***** Github Routes *****/
 const (
-	Repo = "/repo"
+	Repo   = "/repo"
+	Branch = "/branch"
 )
