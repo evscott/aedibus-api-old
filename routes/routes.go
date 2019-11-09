@@ -1,22 +1,21 @@
-package Routesroutes
+package Routes
 
 import (
 	"github.com/bndr/gojenkins"
-	"github.com/evscott/z3-e2c-api/routes/github-routes"
-	consts "github.com/evscott/z3-e2c-api/shared"
+	"github.com/evscott/z3-e2c-api/routes/handlers"
 	"github.com/google/go-github/github"
 	"github.com/gorilla/mux"
 )
 
 type Config struct {
 	Router       *mux.Router
-	GithubRoutes *github_routes.Config
+	GithubRoutes *handlers.Config
 }
 
 func GetRoutes(router *mux.Router, jenkins *gojenkins.Jenkins, github *github.Client) *Config {
 	c := &Config{
 		Router:       router,
-		GithubRoutes: &github_routes.Config{GAL: github},
+		GithubRoutes: &handlers.Config{GAL: github},
 	}
 
 	c.handleGithubRoutes()
@@ -25,7 +24,7 @@ func GetRoutes(router *mux.Router, jenkins *gojenkins.Jenkins, github *github.Cl
 }
 
 func (c *Config) handleGithubRoutes() {
-	c.Router.HandleFunc(consts.GITHUB+consts.REPO, c.GithubRoutes.CreateRepository).Methods(consts.POST)
-	c.Router.HandleFunc(consts.GITHUB+consts.BRANCH, c.GithubRoutes.CreateReference).Methods(consts.POST)
-	c.Router.HandleFunc(consts.GITHUB+consts.FILE, c.GithubRoutes.UploadFile).Methods(consts.POST)
+	c.Router.HandleFunc(Path(Github, Repository), c.GithubRoutes.CreateRepository).Methods(POST)
+	c.Router.HandleFunc(Path(Github, Branch), c.GithubRoutes.CreateReference).Methods(POST)
+	c.Router.HandleFunc(Path(Github, File), c.GithubRoutes.UploadFile).Methods(POST)
 }
