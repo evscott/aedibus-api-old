@@ -17,6 +17,70 @@ type Config struct {
 	GAL *github.Client
 }
 
+func (c *Config) UpdateFile(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+	buffer := bytes.Buffer{}
+
+	/***** Unpack request *****/
+
+	// Unpack file metadata
+	repo := r.FormValue("repo")
+	branch := r.FormValue("branch")
+	fileName := r.FormValue("fileName")
+
+	if repo == "" || branch == "" || fileName == "" {
+		log.Fatal("Must include form values for repo, branch, and fileName")
+	}
+
+	// Unpack file to upload
+	file, header, err := r.FormFile(fileName)
+	if err != nil {
+		w.WriteHeader(Status(InternalServerError))
+		log.Fatal(err)
+	} else {
+		name := strings.Split(header.Filename, ".")
+		fmt.Printf("Received file: %s\n", name[0])
+		defer file.Close()
+	}
+
+	if _, err := io.Copy(&buffer, file); err != nil {
+		w.WriteHeader(Status(InternalServerError))
+		log.Fatal(err)
+	}
+	contents := buffer.Bytes()
+	buffer.Reset()
+
+	/***** Get blob sha of file from Github *****/
+	getOptions := github.RepositoryContentGetOptions{Ref: fmt.Sprintf("/repos/%s/%s/contents/%s?ref=heads/test-branch", Z3E2C, repo, fileName)}
+
+	fmt.Printf("Gettin file: %s", getOptions)
+	var sha string
+	if contents, _, res, err := c.GAL.Repositories.GetContents(ctx, Z3E2C, repo, fileName, &getOptions); err != nil {
+		w.WriteHeader(Status(InternalServerError))
+		log.Fatal(err)
+	} else {
+		fmt.Printf("Got sha for file %s %v\n", fileName, res)
+		sha = *contents.SHA
+	}
+
+	/***** Upload file to Github *****/
+	fileOptions := github.RepositoryContentFileOptions{
+		Message: String(UpdatingFile),
+		Content: contents,
+		Branch:  &branch,
+		SHA:     &sha,
+	}
+
+	if _, res, err := c.GAL.Repositories.UpdateFile(ctx, Z3E2C, repo, fileName, &fileOptions); err != nil {
+		w.WriteHeader(Status(InternalServerError))
+		log.Fatal(err)
+	} else {
+		fmt.Printf("File %s uploaded to branch %s %v\n", fileName, branch, res)
+	}
+
+	w.WriteHeader(Status(OK))
+}
+
 func (c *Config) UploadFile(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	buffer := bytes.Buffer{}
@@ -51,12 +115,13 @@ func (c *Config) UploadFile(w http.ResponseWriter, r *http.Request) {
 	buffer.Reset()
 
 	/***** Upload file to Github *****/
-	fo := github.RepositoryContentFileOptions{
+	fileOptions := github.RepositoryContentFileOptions{
 		Message: String(UploadingFile),
 		Content: contents,
 		Branch:  &branch,
 	}
-	if _, res, err := c.GAL.Repositories.CreateFile(ctx, Z3E2C, repo, fileName, &fo); err != nil {
+
+	if _, res, err := c.GAL.Repositories.CreateFile(ctx, Z3E2C, repo, fileName, &fileOptions); err != nil {
 		w.WriteHeader(Status(InternalServerError))
 		log.Fatal(err)
 	} else {

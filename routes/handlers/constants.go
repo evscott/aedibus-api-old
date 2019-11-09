@@ -9,6 +9,7 @@ const (
 /***** Commit Messages *****/
 const (
 	UploadingFile = "Uploading file"
+	UpdatingFile  = "UpdatingFile"
 )
 
 /***** HTTP Status Codes *****/
