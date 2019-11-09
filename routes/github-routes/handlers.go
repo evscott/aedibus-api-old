@@ -50,7 +50,7 @@ func (c *Config) CreateRepository(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(200)
 }
 
-func (c *Config) CreateRef(w http.ResponseWriter, r *http.Request) {
+func (c *Config) CreateReference(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
 	/***** Unpack create reference request *****/
