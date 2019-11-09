@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/evscott/z3-e2c-api/models"
-	consts "github.com/evscott/z3-e2c-api/shared"
-	"github.com/google/go-github/github"
 	"io"
 	"log"
 	"net/http"
 	"strings"
+
+	"github.com/evscott/z3-e2c-api/models"
+	consts "github.com/evscott/z3-e2c-api/shared"
+	"github.com/google/go-github/github"
 )
 
 type Config struct {
