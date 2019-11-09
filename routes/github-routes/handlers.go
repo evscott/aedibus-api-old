@@ -1,12 +1,15 @@
 package github_routes
 
 import (
+	"bytes"
 	"context"
 	"fmt"
-	"github.com/evscott/z3-e2c-api/models"
+	"io"
 	"log"
 	"net/http"
+	"strings"
 
+	"github.com/evscott/z3-e2c-api/models"
 	consts "github.com/evscott/z3-e2c-api/shared"
 	"github.com/google/go-github/github"
 )
@@ -15,12 +18,52 @@ type Config struct {
 	GAL *github.Client
 }
 
-func (c *Config) GetInfo(w http.ResponseWriter, r *http.Request) {}
+func (c *Config) UploadFile(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+	buffer := bytes.Buffer{}
 
-func (c *Config) Test(w http.ResponseWriter, r *http.Request) {
-	req := &models.ReqCreateRef{}
-	consts.ParseReqJsonBody(req, w, r)
-	fmt.Printf("Body: %v\n", req)
+	/***** Unpack request *****/
+
+	// Unpack file metadata
+	repo := r.FormValue("repo")
+	branch := r.FormValue("branch")
+	fileName := r.FormValue("fileName")
+
+	if repo == "" || branch == "" || fileName == "" {
+		log.Fatal("Must include form values for repo, branch, and fileName")
+	}
+
+	// Unpack file to upload
+	file, header, err := r.FormFile(fileName)
+	if err != nil {
+		w.WriteHeader(500)
+		log.Fatal(err)
+	} else {
+		name := strings.Split(header.Filename, ".")
+		fmt.Printf("Received file: %s\n", name[0])
+		defer file.Close()
+	}
+
+	if _, err := io.Copy(&buffer, file); err != nil {
+		w.WriteHeader(500)
+		log.Fatal(err)
+	}
+	contents := buffer.Bytes()
+	buffer.Reset()
+
+	/***** Upload file to Github *****/
+	fo := github.RepositoryContentFileOptions{
+		Message: String(consts.UploadingFile),
+		Content: contents,
+		Branch:  &branch,
+	}
+	if _, res, err := c.GAL.Repositories.CreateFile(ctx, consts.Z3E2C, repo, fileName, &fo); err != nil {
+		w.WriteHeader(500)
+		log.Fatal(err)
+	} else {
+		fmt.Printf("File %s uploaded to branch %s %v\n", fileName, branch, res)
+	}
+
 	w.WriteHeader(200)
 }
 
