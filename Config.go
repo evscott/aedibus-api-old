@@ -45,8 +45,6 @@ func GetConfig(ctx context.Context, router *mux.Router) *Config {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("Github access token: %s\n", spec.GithubAccessToken)
-
 	if ipAddr, err := net.InterfaceAddrs(); err != nil {
 		log.Fatal(err)
 	} else {
