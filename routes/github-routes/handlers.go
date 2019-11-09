@@ -70,7 +70,7 @@ func (c *Config) CreateReference(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Got master reference: %v\n", res)
 	}
 
-	/***** CREATE branch *****/
+	/***** Create branch *****/
 	reference := github.Reference{
 		Ref: String(fmt.Sprintf("refs/heads/%s", req.Branch)),
 		URL: String(fmt.Sprintf("https://api.github.com/repos/%s/%s/git/refs/heads/%s", consts.Z3E2C, req.Repo, req.Branch)),
