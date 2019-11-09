@@ -24,8 +24,14 @@ const (
 	CREATE = "/create"
 )
 
-/***** GITHUB Routes *****/
+/***** Github Routes *****/
 const (
 	REPO   = "/repo"
 	BRANCH = "/branch"
+	FILE   = "/file"
+)
+
+/***** Commit Messages *****/
+const (
+	UploadingFile = "Uploading file"
 )

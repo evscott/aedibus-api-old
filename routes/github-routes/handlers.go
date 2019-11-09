@@ -17,34 +17,53 @@ type Config struct {
 	GAL *github.Client
 }
 
-func (c *Config) GetInfo(w http.ResponseWriter, r *http.Request) {
+func (c *Config) UploadFile(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+	buffer := bytes.Buffer{}
 
-}
+	/***** Unpack request *****/
 
-func (c *Config) Test(w http.ResponseWriter, r *http.Request) {
-	req := &models.ReqCreateRef{}
-	consts.ParseReqJsonBody(req, w, r)
-	fmt.Printf("Body: %v\n", req)
-	w.WriteHeader(200)
-}
+	// Unpack file metadata
+	repo := r.FormValue("repo")
+	branch := r.FormValue("branch")
+	fileName := r.FormValue("fileName")
 
-func (c *Config) AddFile(w http.ResponseWriter, r *http.Request) {
-	var Buf bytes.Buffer
-	file, header, err := r.FormFile("file")
-	if err != nil {
-		panic(err)
+	if repo == "" || branch == "" || fileName == "" {
+		log.Fatal("Must include form values for repo, branch, and fileName")
 	}
-	defer file.Close()
 
-	name := strings.Split(header.Filename, ".")
-	fmt.Printf("File name %s\n", name[0])
-	if _, err := io.Copy(&Buf, file); err != nil {
+	// Unpack file to upload
+	file, header, err := r.FormFile(fileName)
+	if err != nil {
+		w.WriteHeader(500)
+		log.Fatal(err)
+	} else {
+		name := strings.Split(header.Filename, ".")
+		fmt.Printf("Received file: %s\n", name[0])
+		defer file.Close()
+	}
+
+	if _, err := io.Copy(&buffer, file); err != nil {
+		w.WriteHeader(500)
 		log.Fatal(err)
 	}
+	contents := buffer.Bytes()
+	buffer.Reset()
 
-	contents := Buf.String()
-	fmt.Println(contents)
-	Buf.Reset()
+	/***** Upload file to Github *****/
+	fo := github.RepositoryContentFileOptions{
+		Message: String(consts.UploadingFile),
+		Content: contents,
+		Branch:  &branch,
+	}
+	if _, res, err := c.GAL.Repositories.CreateFile(ctx, consts.Z3E2C, repo, fileName, &fo); err != nil {
+		w.WriteHeader(500)
+		log.Fatal(err)
+	} else {
+		fmt.Printf("File %s uploaded to branch %s %v\n", fileName, branch, res)
+	}
+
+	w.WriteHeader(200)
 }
 
 func (c *Config) CreateRepository(w http.ResponseWriter, r *http.Request) {
