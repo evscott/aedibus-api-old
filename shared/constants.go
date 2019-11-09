@@ -2,7 +2,8 @@ package shared
 
 /***** Msc *****/
 const (
-	Z3E2C = "z3-e2c"
+	Z3E2C  = "z3-e2c"
+	MASTER = "master"
 )
 
 /***** Routes Methods *****/
@@ -15,16 +16,16 @@ const (
 
 /***** Routes Roots *****/
 const (
-	Github = "/github"
+	GITHUB = "/github"
 )
 
 /***** Routes Shared *****/
 const (
-	Create = "/create"
+	CREATE = "/create"
 )
 
-/***** Github Routes *****/
+/***** GITHUB Routes *****/
 const (
-	Repo   = "/repo"
-	Branch = "/branch"
+	REPO   = "/repo"
+	BRANCH = "/branch"
 )

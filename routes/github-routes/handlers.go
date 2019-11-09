@@ -3,7 +3,7 @@ package github_routes
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"github.com/evscott/z3-e2c-api/models"
 	"log"
 	"net/http"
 
@@ -17,40 +17,34 @@ type Config struct {
 
 func (c *Config) GetInfo(w http.ResponseWriter, r *http.Request) {}
 
+func (c *Config) Test(w http.ResponseWriter, r *http.Request) {
+	req := &models.ReqCreateRef{}
+	consts.ParseReqJsonBody(req, w, r)
+	fmt.Printf("Body: %v\n", req)
+	w.WriteHeader(200)
+}
+
 func (c *Config) CreateRepository(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("Getting hit")
 	ctx := context.Background()
 
-	repo := github.Repository{
-		Name:          String("test"),
-		DefaultBranch: String("master"),
+	/***** Unpack create repository request *****/
+	req := &models.ReqCreateRepo{}
+	consts.ParseReqJsonBody(req, w, r)
+	if req.Repo == "" {
+		w.WriteHeader(400)
+		log.Fatalf("Invalid request: %v\n", req)
 	}
 
+	/***** Create repository *****/
+	repo := github.Repository{
+		Name:          &req.Repo,
+		DefaultBranch: String(consts.MASTER),
+	}
 	if _, res, err := c.GAL.Repositories.Create(ctx, consts.Z3E2C, &repo); err != nil {
 		w.WriteHeader(500)
 		log.Fatal(err)
 	} else {
-		fmt.Printf("Repository created %v\n", res)
-	}
-
-	/***** Create master file *****/
-	byteFile, err := ioutil.ReadFile("test.md") // b has type []byte
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	message := "Adding README"
-
-	content := github.RepositoryContentFileOptions{
-		Message: &message,
-		Content: byteFile,
-	}
-
-	if _, res, err := c.GAL.Repositories.CreateFile(ctx, consts.Z3E2C, "test", "README.md", &content); err != nil {
-		w.WriteHeader(500)
-		log.Fatal(err)
-	} else {
-		fmt.Printf("README created %v\n", res)
+		fmt.Printf("Repository %s created %v\n", req.Repo, res)
 	}
 
 	w.WriteHeader(200)
@@ -59,8 +53,16 @@ func (c *Config) CreateRepository(w http.ResponseWriter, r *http.Request) {
 func (c *Config) CreateRef(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
+	/***** Unpack create reference request *****/
+	req := &models.ReqCreateRef{}
+	consts.ParseReqJsonBody(req, w, r)
+	if req.Repo == "" || req.Branch == "" {
+		w.WriteHeader(400)
+		log.Fatalf("Invalid request: %v\n", req)
+	}
+
 	/***** Get master reference *****/
-	masterRef, res, err := c.GAL.Git.GetRef(ctx, consts.Z3E2C, "test", "refs/heads/master")
+	masterRef, res, err := c.GAL.Git.GetRef(ctx, consts.Z3E2C, req.Repo, fmt.Sprintf("refs/heads/%s", consts.MASTER))
 	if err != nil {
 		w.WriteHeader(500)
 		log.Fatal(err)
@@ -68,27 +70,25 @@ func (c *Config) CreateRef(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Got master reference: %v\n", res)
 	}
 
-	/***** Create branch *****/
-	branchName := "test-branch"
-
+	/***** CREATE branch *****/
 	reference := github.Reference{
-		Ref: String(fmt.Sprintf("refs/heads/%s", branchName)),
-		URL: String(fmt.Sprintf("https://api.github.com/repos/%s/%s/git/refs/heads/%s", consts.Z3E2C, "test", branchName)),
+		Ref: String(fmt.Sprintf("refs/heads/%s", req.Branch)),
+		URL: String(fmt.Sprintf("https://api.github.com/repos/%s/%s/git/refs/heads/%s", consts.Z3E2C, req.Repo, req.Branch)),
 		Object: &github.GitObject{
 			Type: String("commit"),
 			SHA:  masterRef.Object.SHA,
-			URL:  String(fmt.Sprintf("https://api.github.com/repos/z3-e2c/test/git/commits/%v", masterRef)),
+			URL:  String(fmt.Sprintf("https://api.github.com/repos/%s/%s/git/commits/%s", consts.Z3E2C, req.Repo, masterRef)),
 		},
 	}
 
-	fmt.Printf("%v\n%v", c.GAL.Git, reference)
-
-	if _, res, err := c.GAL.Git.CreateRef(ctx, consts.Z3E2C, "test", &reference); err != nil {
+	if _, res, err := c.GAL.Git.CreateRef(ctx, consts.Z3E2C, req.Repo, &reference); err != nil {
 		w.WriteHeader(500)
 		log.Fatal(err)
 	} else {
-		fmt.Printf("Reference created: %v\n", res)
+		fmt.Printf("Reference %s/%s created: %v\n", req.Repo, req.Branch, res)
 	}
+
+	w.WriteHeader(200)
 }
 
 func String(s string) *string {
