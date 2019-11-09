@@ -3,10 +3,10 @@ package GithubRoutes
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 
+	consts "github.com/evscott/z3-e2c-api/shared"
 	"github.com/google/go-github/github"
 )
 
@@ -14,48 +14,22 @@ type Config struct {
 	GAL *github.Client
 }
 
-func (c *Config) Test(w http.ResponseWriter, r *http.Request) {
+func (c *Config) GetInfo(w http.ResponseWriter, r *http.Request) {}
+
+func (c *Config) CreateRepository(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
-	fmt.Printf("Getting branch")
+	name := "test"
+	defaultBranch := "master"
 
-	//name := "test-project"
-	//
-	//repo := github.Repository{
-	//	Name: &name,
-	//}
-	//
-	//if repo, res, err := c.GAL.Repositories.Create(ctx, "sakjfh", &repo); err != nil {
-	//	log.Fatal(err)
-	//} else {
-	//	fmt.Printf("Repo created: %v\n", repo)
-	//	fmt.Printf("Res: %v\n", res)
-	//}
-	//
-	b, err := ioutil.ReadFile("README.md") // just pass the file name
-	if err != nil {
-		fmt.Print(err)
+	repo := github.Repository{
+		Name:          &name,
+		DefaultBranch: &defaultBranch,
 	}
 
-	message := "Testing uploading a file through go api"
-	branch := "test2"
-
-	options := github.RepositoryContentFileOptions{
-		Message:   &message,
-		Content:   b,
-		SHA:       nil,
-		Branch:    &branch,
-		Author:    nil,
-		Committer: nil,
-	}
-
-	contents, res, err := c.GAL.Repositories.CreateFile(ctx, "sakjfh", "test-project", "READMEeeee.md", &options)
-	if err != nil {
+	if repo, res, err := c.GAL.Repositories.Create(ctx, consts.Z3E2C, &repo); err != nil {
 		log.Fatal(err)
 	} else {
-		fmt.Printf("Contents: %v\n", contents)
-		fmt.Printf("Response: %v\n", res)
+		fmt.Printf("Status: %s\nRepository created: %v\n", res, repo)
 	}
-
-	fmt.Printf("Got branch")
 }

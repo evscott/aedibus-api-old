@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	Routes "github.com/evscott/z3-12c-api/Routes"
+	Routes "github.com/evscott/z3-e2c-api/Routes"
 	"github.com/gorilla/mux"
 )
 

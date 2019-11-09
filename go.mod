@@ -1,4 +1,4 @@
-module github.com/evscott/z3-12c-api
+module github.com/evscott/z3-e2c-api
 
 go 1.13
 
