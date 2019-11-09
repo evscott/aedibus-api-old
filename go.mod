@@ -1,4 +1,4 @@
-module github.com/evscott/Jenkins-Access-Center
+module github.com/evscott/z3-12c-api
 
 go 1.13
 
