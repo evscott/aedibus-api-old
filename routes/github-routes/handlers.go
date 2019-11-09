@@ -1,4 +1,4 @@
-package GithubRoutes
+package github_routes
 
 import (
 	"context"
