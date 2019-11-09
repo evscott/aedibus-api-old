@@ -37,6 +37,7 @@ type Config struct {
 func GetConfig(ctx context.Context, router *mux.Router) *Config {
 	/*****  Setup z3-12c-api specifications *****/
 	spec := Specifications{}
+	// Load environment variables from .env if found
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
@@ -44,7 +45,7 @@ func GetConfig(ctx context.Context, router *mux.Router) *Config {
 	if err := envconfig.Process("Z3", &spec); err != nil {
 		log.Fatal(err)
 	}
-
+	// Get host IP
 	if ipAddr, err := net.InterfaceAddrs(); err != nil {
 		log.Fatal(err)
 	} else {
@@ -70,7 +71,8 @@ func GetConfig(ctx context.Context, router *mux.Router) *Config {
 		if err != nil {
 			log.Fatal(err)
 		}
-		for _, node := range nodes { // Check if all nodes are alive
+		// Check if all nodes are online
+		for _, node := range nodes {
 			if _, err := node.Poll(); err != nil {
 				log.Fatal(err)
 			}
