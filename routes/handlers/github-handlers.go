@@ -51,9 +51,8 @@ func (c *Config) UpdateFile(w http.ResponseWriter, r *http.Request) {
 	buffer.Reset()
 
 	/***** Get blob sha of file from Github *****/
-	getOptions := github.RepositoryContentGetOptions{Ref: fmt.Sprintf("/repos/%s/%s/contents/%s?ref=heads/test-branch", Z3E2C, repo, fileName)}
+	getOptions := github.RepositoryContentGetOptions{Ref: fmt.Sprintf("heads/%s", branch)}
 
-	fmt.Printf("Gettin file: %s", getOptions)
 	var sha string
 	if contents, _, res, err := c.GAL.Repositories.GetContents(ctx, Z3E2C, repo, fileName, &getOptions); err != nil {
 		w.WriteHeader(Status(InternalServerError))
