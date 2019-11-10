@@ -1,10 +1,10 @@
 package models
 
 type ReqCreateRef struct {
-	Repo   string `json:"repo"`
-	Branch string `json:"branch"`
+	RepoName   string `json:"repoName"`
+	BranchName string `json:"branchName"`
 }
 
 type ReqCreateRepo struct {
-	Repo string `json:"repo"`
+	RepoName string `json:"repoName"`
 }

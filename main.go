@@ -18,7 +18,7 @@ func main() {
 	conf := GetConfig(ctx, mux.NewRouter())
 	_ = Routes.GetRoutes(conf.Router, conf.JenkinsClient, conf.GithubClient)
 
-	/***** Start up *****/
+	// Start up
 	go func() {
 		log.Printf("Starting up...\n")
 		if err := conf.Server.ListenAndServe(); err == nil {
@@ -28,7 +28,7 @@ func main() {
 		}
 	}()
 
-	/***** Wait for shutdown *****/
+	// Wait for shutdown
 	func(srv *http.Server) {
 		interruptChan := make(chan os.Signal, 1)
 		signal.Notify(interruptChan, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
