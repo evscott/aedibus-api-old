@@ -17,6 +17,34 @@ type Config struct {
 	GAL *github.Client
 }
 
+func (c *Config) CreatePullRequest(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+
+	// Unpack create repository request
+	req := &models.ReqCreatePR{}
+	ParseReqJsonBody(req, w, r)
+	if req.RepoName == "" || req.Head == "" {
+		w.WriteHeader(Status(OK))
+		log.Fatalf("Invalid request: %v\n", req)
+	}
+
+	pullRequest := github.NewPullRequest{
+		Title:               String(req.Title),
+		Head:                String(req.Head),
+		Base:                String(MASTER),
+		Body:                String(req.Body),
+		Issue:               nil,
+		MaintainerCanModify: Bool(true),
+	}
+
+	if _, res, err := c.GAL.PullRequests.Create(ctx, Z3E2C, req.RepoName, &pullRequest); err != nil {
+		w.WriteHeader(Status(InternalServerError))
+		log.Fatal(err)
+	} else {
+		fmt.Printf("Created pull request %s: %v\n", req.Title, res)
+	}
+}
+
 // UpdateFile TODO
 func (c *Config) UpdateFile(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
