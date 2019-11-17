@@ -28,4 +28,5 @@ func (c *Config) handleGithubRoutes() {
 	c.Router.HandleFunc(Path(Github, Branch), c.GithubRoutes.CreateReference).Methods(POST)
 	c.Router.HandleFunc(Path(Github, File), c.GithubRoutes.UploadFile).Methods(POST)
 	c.Router.HandleFunc(Path(Github, File), c.GithubRoutes.UpdateFile).Methods(PUT)
+	c.Router.HandleFunc(Path(Github, PullRequest), c.GithubRoutes.CreatePullRequest).Methods(POST)
 }
