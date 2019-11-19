@@ -17,12 +17,13 @@ type Config struct {
 	GAL *github.Client
 }
 
+//  TODO
 func (c *Config) CreateComment(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
-	// Unpack create reference request
+	// Unpack create comment request
 	req := &models.ReqCreateComment{}
-	ParseReqJsonBody(req, w, r)
+	UnmarshalRequest(req, w, r)
 
 	comment := github.PullRequestComment{
 		Path:     req.Path,
@@ -31,12 +32,12 @@ func (c *Config) CreateComment(w http.ResponseWriter, r *http.Request) {
 		CommitID: req.CommitID,
 	}
 
-	if _, _, err := c.GAL.PullRequests.CreateComment(ctx, Z3E2C, *req.RepoName, 1, &comment); err != nil {
+	if res, _, err := c.GAL.PullRequests.CreateComment(ctx, Z3E2C, *req.RepoName, 1, &comment); err != nil {
 		w.WriteHeader(Status(InternalServerError))
 		log.Fatal(err)
+	} else {
+		MarshalResponse(res, w)
 	}
-
-	w.WriteHeader(Status(OK))
 }
 
 // UpdateFile TODO
@@ -86,14 +87,12 @@ func (c *Config) UpdateFile(w http.ResponseWriter, r *http.Request) {
 		Branch:  &branch,
 		SHA:     &sha,
 	}
-	if _, res, err := c.GAL.Repositories.UpdateFile(ctx, Z3E2C, repo, fileName, &fileOptions); err != nil {
+	if res, _, err := c.GAL.Repositories.UpdateFile(ctx, Z3E2C, repo, fileName, &fileOptions); err != nil {
 		w.WriteHeader(Status(InternalServerError))
 		log.Fatal(err)
 	} else {
-		fmt.Printf("File %s updated on branch %s %v\n", fileName, branch, res)
+		MarshalResponse(res, w)
 	}
-
-	w.WriteHeader(Status(OK))
 }
 
 // UploadFile TODO
@@ -131,14 +130,12 @@ func (c *Config) UploadFile(w http.ResponseWriter, r *http.Request) {
 		Content: contents,
 		Branch:  &branch,
 	}
-	if _, res, err := c.GAL.Repositories.CreateFile(ctx, Z3E2C, repo, fileName, &fileOptions); err != nil {
+	if res, _, err := c.GAL.Repositories.CreateFile(ctx, Z3E2C, repo, fileName, &fileOptions); err != nil {
 		w.WriteHeader(Status(InternalServerError))
 		log.Fatal(err)
 	} else {
-		fmt.Printf("File %s uploaded to branch %s %v\n", fileName, branch, res)
+		MarshalResponse(res, w)
 	}
-
-	w.WriteHeader(Status(OK))
 }
 
 // CreateRepository TODO
@@ -147,21 +144,19 @@ func (c *Config) CreateRepository(w http.ResponseWriter, r *http.Request) {
 
 	// Unpack create repository request
 	req := &models.ReqCreateRepo{}
-	ParseReqJsonBody(req, w, r)
+	UnmarshalRequest(req, w, r)
 
 	// Create repository
 	repo := github.Repository{
 		Name:          &req.RepoName,
 		DefaultBranch: String(MASTER),
 	}
-	if _, res, err := c.GAL.Repositories.Create(ctx, Z3E2C, &repo); err != nil {
+	if res, _, err := c.GAL.Repositories.Create(ctx, Z3E2C, &repo); err != nil {
 		w.WriteHeader(Status(InternalServerError))
 		log.Fatal(err)
 	} else {
-		fmt.Printf("Repository %s created %v\n", req.RepoName, res)
+		MarshalResponse(res, w)
 	}
-
-	w.WriteHeader(Status(OK))
 }
 
 // CreateBranch TODO
@@ -170,7 +165,7 @@ func (c *Config) CreateBranch(w http.ResponseWriter, r *http.Request) {
 
 	// Unpack create reference request
 	req := &models.ReqCreateBranch{}
-	ParseReqJsonBody(req, w, r)
+	UnmarshalRequest(req, w, r)
 
 	// Get master reference
 	masterRef, res, err := c.GAL.Git.GetRef(ctx, Z3E2C, req.RepoName, fmt.Sprintf("refs/heads/%s", MASTER))
@@ -191,12 +186,10 @@ func (c *Config) CreateBranch(w http.ResponseWriter, r *http.Request) {
 			URL:  String(fmt.Sprintf("https://api.github.com/repos/%s/%s/git/commits/%s", Z3E2C, req.RepoName, masterRef)),
 		},
 	}
-	if _, res, err := c.GAL.Git.CreateRef(ctx, Z3E2C, req.RepoName, &reference); err != nil {
+	if res, _, err := c.GAL.Git.CreateRef(ctx, Z3E2C, req.RepoName, &reference); err != nil {
 		w.WriteHeader(Status(InternalServerError))
 		log.Fatal(err)
 	} else {
-		fmt.Printf("Reference %s/%s created: %v\n", req.RepoName, req.BranchName, res)
+		MarshalResponse(res, w)
 	}
-
-	w.WriteHeader(Status(OK))
 }
