@@ -32,7 +32,7 @@ type Config struct {
 }
 
 func GetConfig(ctx context.Context, router *mux.Router) *Config {
-	// Setup log
+	// Setup logger
 	log := logger.NewLogger()
 
 	/*****  Setup z3-12c-api specifications *****/
