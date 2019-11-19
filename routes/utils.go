@@ -1,11 +1,16 @@
 package Routes
 
+import (
+	"strings"
+)
+
 func Path(resources ...Resource) string {
-	route := ""
+	var route strings.Builder
 	for _, r := range resources {
-		route += string(r)
+		route.WriteString(string(r))
 	}
-	return route
+
+	return route.String()
 }
 
 func String(s string) *string {
