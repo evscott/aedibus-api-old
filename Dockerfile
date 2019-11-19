@@ -10,8 +10,8 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o jac .
+RUN go build -o z3-e2c-api .
 
 EXPOSE 8080
 
-CMD ["./jac"]
+CMD ["./z3-e2c-api"]
