@@ -24,8 +24,9 @@ func GetRoutes(router *mux.Router, jenkins *gojenkins.Jenkins, github *github.Cl
 }
 
 func (c *Config) handleGithubRoutes() {
+	c.Router.HandleFunc(Path(Github, PullRequest, Comment), c.GithubRoutes.CreateComment).Methods(POST)
 	c.Router.HandleFunc(Path(Github, Repository), c.GithubRoutes.CreateRepository).Methods(POST)
-	c.Router.HandleFunc(Path(Github, Branch), c.GithubRoutes.CreateReference).Methods(POST)
+	c.Router.HandleFunc(Path(Github, Branch), c.GithubRoutes.CreateBranch).Methods(POST)
 	c.Router.HandleFunc(Path(Github, File), c.GithubRoutes.UploadFile).Methods(POST)
 	c.Router.HandleFunc(Path(Github, File), c.GithubRoutes.UpdateFile).Methods(PUT)
 	c.Router.HandleFunc(Path(Github, PullRequest), c.GithubRoutes.CreatePullRequest).Methods(POST)

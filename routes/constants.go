@@ -8,7 +8,8 @@ const (
 	Repository  Resource = "/repository"
 	Branch      Resource = "/branch"
 	File        Resource = "/file"
-	PullRequest Resource = "/pullrequest"
+	PullRequest Resource = "/pull-request"
+	Comment     Resource = "/comment"
 )
 
 /***** HTTP Methods *****/
