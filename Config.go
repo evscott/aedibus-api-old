@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/bndr/gojenkins"
 	"github.com/google/go-github/github"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -17,9 +16,6 @@ import (
 )
 
 type Specifications struct {
-	JenkinsHost       string `default:"http://localhost:8080"`
-	JenkinsUsername   string `default:"admin"`
-	JenkinsPassword   string `default:"admin"`
 	SrvPort           string `default:"9090"`
 	ReadWriteTimeOut  string `default:"10"`
 	HostIP            string `default:"127.0.0.1"`
@@ -27,11 +23,10 @@ type Specifications struct {
 }
 
 type Config struct {
-	Spec          *Specifications
-	Router        *mux.Router
-	Server        *http.Server
-	JenkinsClient *gojenkins.Jenkins
-	GithubClient  *github.Client
+	Spec         *Specifications
+	Router       *mux.Router
+	Server       *http.Server
+	GithubClient *github.Client
 }
 
 func GetConfig(ctx context.Context, router *mux.Router) *Config {
@@ -62,25 +57,6 @@ func GetConfig(ctx context.Context, router *mux.Router) *Config {
 			ReadTimeout:  time.Second * 10,
 			WriteTimeout: time.Second * 10,
 		},
-	}
-
-	/***** Set up Jenkins client *****/
-	jenkinsClient, _ := gojenkins.CreateJenkins(nil, spec.JenkinsHost, spec.JenkinsUsername, spec.JenkinsPassword).Init()
-	if jenkinsClient != nil {
-		nodes, err := jenkinsClient.GetAllNodes()
-		if err != nil {
-			log.Fatal(err)
-		}
-		// Check if all nodes are online
-		for _, node := range nodes {
-			if _, err := node.Poll(); err != nil {
-				log.Fatal(err)
-			}
-			if isOnline, err := node.IsOnline(); err == nil {
-				fmt.Printf("Node %s is online: %v\n", node.GetName(), isOnline)
-			}
-		}
-		config.JenkinsClient = jenkinsClient
 	}
 
 	/***** Setup Github client *****/
