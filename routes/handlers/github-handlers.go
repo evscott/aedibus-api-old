@@ -9,15 +9,15 @@ import (
 	"strings"
 
 	"github.com/evscott/z3-e2c-api/models"
-	"github.com/evscott/z3-e2c-api/shared/Logger"
 	consts "github.com/evscott/z3-e2c-api/shared/constants"
+	"github.com/evscott/z3-e2c-api/shared/logger"
 	"github.com/evscott/z3-e2c-api/shared/utils"
 	"github.com/google/go-github/github"
 )
 
 type Config struct {
 	GAL    *github.Client
-	Logger *Logger.StandardLogger
+	Logger *logger.StandardLogger
 }
 
 //  TODO

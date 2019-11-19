@@ -3,12 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/evscott/z3-e2c-api/shared/Logger"
 	"net"
 	"net/http"
 	"strings"
 	"time"
 
+	"github.com/evscott/z3-e2c-api/shared/logger"
 	"github.com/google/go-github/github"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -28,26 +28,26 @@ type Config struct {
 	Router       *mux.Router
 	Server       *http.Server
 	GithubClient *github.Client
-	Logger       *Logger.StandardLogger
+	log          *logger.StandardLogger
 }
 
 func GetConfig(ctx context.Context, router *mux.Router) *Config {
-	// Setup logger
-	logger := Logger.NewLogger()
+	// Setup log
+	log := logger.NewLogger()
 
 	/*****  Setup z3-12c-api specifications *****/
 	spec := Specifications{}
 	// Load environment variables from .env if found
 	err := godotenv.Load()
 	if err != nil {
-		logger.ConfigError(err)
+		log.ConfigError(err)
 	}
 	if err := envconfig.Process("Z3", &spec); err != nil {
-		logger.ConfigError(err)
+		log.ConfigError(err)
 	}
 	// Get host IP
 	if ipAddr, err := net.InterfaceAddrs(); err != nil {
-		logger.ConfigError(err)
+		log.ConfigError(err)
 	} else {
 		spec.HostIP = strings.Split(ipAddr[0].String(), "/")[0]
 	}
@@ -62,7 +62,7 @@ func GetConfig(ctx context.Context, router *mux.Router) *Config {
 			ReadTimeout:  time.Second * 10,
 			WriteTimeout: time.Second * 10,
 		},
-		Logger: logger,
+		log: log,
 	}
 
 	/***** Setup Github client *****/
