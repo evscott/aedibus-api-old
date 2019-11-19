@@ -71,5 +71,7 @@ func GetConfig(ctx context.Context, router *mux.Router) *Config {
 	githubClient := github.NewClient(tc)
 	config.GithubClient = githubClient
 
+	/***** Run Postgres migrations client *****/
+
 	return config
 }
