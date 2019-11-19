@@ -26,17 +26,10 @@ func NewLogger() *StandardLogger {
 	return standardLogger
 }
 
-// InvalidArg is a standard error message
-func (l *StandardLogger) InvalidArg(argumentName string) {
-	l.Errorf(invalidArgMessage.message, argumentName)
+func (l *StandardLogger) ConfigError(error error) {
+	l.Fatalf(configErrorMessage.message, error)
 }
 
-// InvalidArgValue is a standard error message
-func (l *StandardLogger) InvalidArgValue(argumentName string, argumentValue string) {
-	l.Errorf(invalidArgValueMessage.message, argumentName, argumentValue)
-}
-
-// MissingArg is a standard error message
-func (l *StandardLogger) MissingArg(argumentName string) {
-	l.Errorf(missingArgMessage.message, argumentName)
+func (l *StandardLogger) GalError(error error) {
+	l.Errorf(galErrorMessage.message, error)
 }

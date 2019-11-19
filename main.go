@@ -16,7 +16,7 @@ import (
 func main() {
 	ctx := context.Background()
 	conf := GetConfig(ctx, mux.NewRouter())
-	_ = Routes.GetRoutes(conf.Router, conf.GithubClient)
+	_ = Routes.GetRoutes(conf.Router, conf.GithubClient, conf.Logger)
 
 	// Start up
 	go func() {
