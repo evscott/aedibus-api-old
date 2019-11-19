@@ -2,7 +2,7 @@ package Routes
 
 import (
 	"github.com/evscott/z3-e2c-api/routes/handlers"
-	"github.com/evscott/z3-e2c-api/shared/Logger"
+	"github.com/evscott/z3-e2c-api/shared/logger"
 	"github.com/google/go-github/github"
 	"github.com/gorilla/mux"
 )
@@ -12,7 +12,7 @@ type Config struct {
 	GithubRoutes *handlers.Config
 }
 
-func GetRoutes(router *mux.Router, github *github.Client, logger *Logger.StandardLogger) *Config {
+func GetRoutes(router *mux.Router, github *github.Client, logger *logger.StandardLogger) *Config {
 	c := &Config{
 		Router:       router,
 		GithubRoutes: &handlers.Config{GAL: github, Logger: logger},

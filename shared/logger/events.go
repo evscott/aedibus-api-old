@@ -1,4 +1,4 @@
-package Logger
+package logger
 
 // Declare variables to store log messages as new Events
 var (
