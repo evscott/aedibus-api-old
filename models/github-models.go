@@ -9,17 +9,17 @@ type ReqCreateComment struct {
 }
 
 type ReqCreateBranch struct {
-	RepoName   string `json:"repoName"`
-	BranchName string `json:"branchName"`
+	RepoName   *string `json:"repoName"`
+	BranchName *string `json:"branchName"`
 }
 
 type ReqCreatePR struct {
-	RepoName string `json:"repoName"`
-	Title    string `json:"title"`
-	Body     string `json:"body"`
-	Head     string `json:"head"`
+	RepoName *string `json:"repoName"`
+	Title    *string `json:"title"`
+	Body     *string `json:"body"`
+	Head     *string `json:"head"`
 }
 
 type ReqCreateRepo struct {
-	RepoName string `json:"repoName"`
+	RepoName *string `json:"repoName"`
 }
