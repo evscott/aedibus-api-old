@@ -17,7 +17,7 @@ import (
 )
 
 type Specifications struct {
-	SrvPort           string `default:"9090"`
+	SrvPort           string `default:"7070"`
 	ReadWriteTimeOut  string `default:"10"`
 	HostIP            string `default:"127.0.0.1"`
 	GithubAccessToken string
@@ -28,7 +28,7 @@ type Config struct {
 	Router       *mux.Router
 	Server       *http.Server
 	GithubClient *github.Client
-	log          *logger.StandardLogger
+	Logger       *logger.StandardLogger
 }
 
 func GetConfig(ctx context.Context, router *mux.Router) *Config {
@@ -62,7 +62,7 @@ func GetConfig(ctx context.Context, router *mux.Router) *Config {
 			ReadTimeout:  time.Second * 10,
 			WriteTimeout: time.Second * 10,
 		},
-		log: log,
+		Logger: log,
 	}
 
 	/***** Setup Github client *****/
