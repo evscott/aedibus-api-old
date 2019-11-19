@@ -3,16 +3,18 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/google/go-github/github"
-	"github.com/gorilla/mux"
-	"github.com/joho/godotenv"
-	"github.com/kelseyhightower/envconfig"
-	"golang.org/x/oauth2"
-	"log"
+	"github.com/evscott/z3-e2c-api/shared/Logger"
 	"net"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/google/go-github/github"
+	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
+	"github.com/kelseyhightower/envconfig"
+	log "github.com/sirupsen/logrus"
+	"golang.org/x/oauth2"
 )
 
 type Specifications struct {
@@ -20,6 +22,7 @@ type Specifications struct {
 	ReadWriteTimeOut  string `default:"10"`
 	HostIP            string `default:"127.0.0.1"`
 	GithubAccessToken string
+	Logger            *Logger.StandardLogger
 }
 
 type Config struct {
@@ -31,7 +34,9 @@ type Config struct {
 
 func GetConfig(ctx context.Context, router *mux.Router) *Config {
 	/*****  Setup z3-12c-api specifications *****/
-	spec := Specifications{}
+	spec := Specifications{
+		Logger: Logger.NewLogger(),
+	}
 	// Load environment variables from .env if found
 	err := godotenv.Load()
 	if err != nil {

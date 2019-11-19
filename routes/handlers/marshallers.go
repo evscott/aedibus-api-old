@@ -30,19 +30,3 @@ func MarshalResponse(body interface{}, w http.ResponseWriter) {
 		log.Fatal(err)
 	}
 }
-
-func Status(status HttpStatus) int {
-	return int(status)
-}
-
-func String(s string) *string {
-	return &s
-}
-
-func Int(i int) *int {
-	return &i
-}
-
-func Bool(b bool) *bool {
-	return &b
-}

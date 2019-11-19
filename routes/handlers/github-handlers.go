@@ -10,6 +10,8 @@ import (
 	"strings"
 
 	"github.com/evscott/z3-e2c-api/models"
+	consts "github.com/evscott/z3-e2c-api/shared/constants"
+	"github.com/evscott/z3-e2c-api/shared/utils"
 	"github.com/google/go-github/github"
 )
 
@@ -32,7 +34,7 @@ func (c *Config) CreateComment(w http.ResponseWriter, r *http.Request) {
 		CommitID: req.CommitID,
 	}
 
-	if res, _, err := c.GAL.PullRequests.CreateComment(ctx, Z3E2C, *req.RepoName, 1, &comment); err != nil {
+	if res, _, err := c.GAL.PullRequests.CreateComment(ctx, consts.Z3E2C, *req.RepoName, 1, &comment); err != nil {
 		w.WriteHeader(Status(InternalServerError))
 		log.Fatal(err)
 	} else {
@@ -50,13 +52,13 @@ func (c *Config) CreatePullRequest(w http.ResponseWriter, r *http.Request) {
 	pullRequest := github.NewPullRequest{
 		Title:               req.Title,
 		Head:                req.Head,
-		Base:                String(MASTER),
+		Base:                utils.String(consts.MASTER),
 		Body:                req.Body,
 		Issue:               nil,
-		MaintainerCanModify: Bool(true),
+		MaintainerCanModify: utils.Bool(true),
 	}
 
-	if res, _, err := c.GAL.PullRequests.Create(ctx, Z3E2C, *req.RepoName, &pullRequest); err != nil {
+	if res, _, err := c.GAL.PullRequests.Create(ctx, consts.Z3E2C, *req.RepoName, &pullRequest); err != nil {
 		w.WriteHeader(Status(InternalServerError))
 		log.Fatal(err)
 	} else {
@@ -96,7 +98,7 @@ func (c *Config) UpdateFile(w http.ResponseWriter, r *http.Request) {
 	// Get blob sha of file from Github to be used as target of update
 	var sha string
 	getOptions := github.RepositoryContentGetOptions{Ref: fmt.Sprintf("heads/%s", branch)}
-	if contents, _, res, err := c.GAL.Repositories.GetContents(ctx, Z3E2C, repo, fileName, &getOptions); err != nil {
+	if contents, _, res, err := c.GAL.Repositories.GetContents(ctx, consts.Z3E2C, repo, fileName, &getOptions); err != nil {
 		w.WriteHeader(Status(InternalServerError))
 		log.Fatal(err)
 	} else {
@@ -106,12 +108,12 @@ func (c *Config) UpdateFile(w http.ResponseWriter, r *http.Request) {
 
 	// Upload file to Github
 	fileOptions := github.RepositoryContentFileOptions{
-		Message: String(UpdatingFile),
+		Message: utils.String("Updating file"), // TODO
 		Content: contents,
 		Branch:  &branch,
 		SHA:     &sha,
 	}
-	if res, _, err := c.GAL.Repositories.UpdateFile(ctx, Z3E2C, repo, fileName, &fileOptions); err != nil {
+	if res, _, err := c.GAL.Repositories.UpdateFile(ctx, consts.Z3E2C, repo, fileName, &fileOptions); err != nil {
 		w.WriteHeader(Status(InternalServerError))
 		log.Fatal(err)
 	} else {
@@ -150,11 +152,11 @@ func (c *Config) UploadFile(w http.ResponseWriter, r *http.Request) {
 
 	// Upload file to Github
 	fileOptions := github.RepositoryContentFileOptions{
-		Message: String(UploadingFile),
+		Message: utils.String("Uploading file"),
 		Content: contents,
 		Branch:  &branch,
 	}
-	if res, _, err := c.GAL.Repositories.CreateFile(ctx, Z3E2C, repo, fileName, &fileOptions); err != nil {
+	if res, _, err := c.GAL.Repositories.CreateFile(ctx, consts.Z3E2C, repo, fileName, &fileOptions); err != nil {
 		w.WriteHeader(Status(InternalServerError))
 		log.Fatal(err)
 	} else {
@@ -173,9 +175,9 @@ func (c *Config) CreateRepository(w http.ResponseWriter, r *http.Request) {
 	// Create repository
 	repo := github.Repository{
 		Name:          req.RepoName,
-		DefaultBranch: String(MASTER),
+		DefaultBranch: utils.String(consts.MASTER),
 	}
-	if res, _, err := c.GAL.Repositories.Create(ctx, Z3E2C, &repo); err != nil {
+	if res, _, err := c.GAL.Repositories.Create(ctx, consts.Z3E2C, &repo); err != nil {
 		w.WriteHeader(Status(InternalServerError))
 		log.Fatal(err)
 	} else {
@@ -191,26 +193,26 @@ func (c *Config) CreateBranch(w http.ResponseWriter, r *http.Request) {
 	req := &models.ReqCreateBranch{}
 	UnmarshalRequest(req, w, r)
 
-	// Get master reference
-	masterRef, res, err := c.GAL.Git.GetRef(ctx, Z3E2C, *req.RepoName, fmt.Sprintf("refs/heads/%s", MASTER))
+	// Get MASTER reference
+	masterRef, res, err := c.GAL.Git.GetRef(ctx, consts.Z3E2C, *req.RepoName, fmt.Sprintf("refs/heads/%s", consts.MASTER))
 	if err != nil {
 		w.WriteHeader(Status(InternalServerError))
 		log.Fatal(err)
 	} else {
-		fmt.Printf("Got master reference: %v\n", res)
+		fmt.Printf("Got consts.MASTER reference: %v\n", res)
 	}
 
 	// Create branch
 	reference := github.Reference{
-		Ref: String(fmt.Sprintf("refs/heads/%s", req.BranchName)),
-		URL: String(fmt.Sprintf("https://api.github.com/repos/%s/%s/git/refs/heads/%s", Z3E2C, req.RepoName, req.BranchName)),
+		Ref: utils.String(fmt.Sprintf("refs/heads/%s", req.BranchName)),
+		URL: utils.String(fmt.Sprintf("https://api.github.com/repos/%s/%s/git/refs/heads/%s", consts.Z3E2C, req.RepoName, req.BranchName)),
 		Object: &github.GitObject{
-			Type: String("commit"),
+			Type: utils.String("commit"),
 			SHA:  masterRef.Object.SHA,
-			URL:  String(fmt.Sprintf("https://api.github.com/repos/%s/%s/git/commits/%s", Z3E2C, req.RepoName, masterRef)),
+			URL:  utils.String(fmt.Sprintf("https://api.github.com/repos/%s/%s/git/commits/%s", consts.Z3E2C, req.RepoName, consts.MASTER)),
 		},
 	}
-	if res, _, err := c.GAL.Git.CreateRef(ctx, Z3E2C, *req.RepoName, &reference); err != nil {
+	if res, _, err := c.GAL.Git.CreateRef(ctx, consts.Z3E2C, *req.RepoName, &reference); err != nil {
 		w.WriteHeader(Status(InternalServerError))
 		log.Fatal(err)
 	} else {
