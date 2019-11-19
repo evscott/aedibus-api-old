@@ -1,5 +1,7 @@
 package Routes
 
+import "strings"
+
 type Resource string
 
 /***** API Resources *****/
@@ -19,3 +21,12 @@ const (
 	PUT    = "PUT"
 	DELETE = "DELETE"
 )
+
+func Path(resources ...Resource) string {
+	var route strings.Builder
+	for _, r := range resources {
+		route.WriteString(string(r))
+	}
+
+	return route.String()
+}
