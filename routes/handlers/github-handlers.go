@@ -37,35 +37,31 @@ func (c *Config) CreateComment(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	} else {
 		MarshalResponse(res, w)
-  }
+	}
 }
-  
+
 func (c *Config) CreatePullRequest(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
 	// Unpack create repository request
 	req := &models.ReqCreatePR{}
-	ParseReqJsonBody(req, w, r)
-	if req.RepoName == "" || req.Head == "" {
-		w.WriteHeader(Status(OK))
-		log.Fatalf("Invalid request: %v\n", req)
-	}
+	UnmarshalRequest(req, w, r)
 
 	pullRequest := github.NewPullRequest{
-		Title:               String(req.Title),
-		Head:                String(req.Head),
+		Title:               req.Title,
+		Head:                req.Head,
 		Base:                String(MASTER),
-		Body:                String(req.Body),
+		Body:                req.Body,
 		Issue:               nil,
 		MaintainerCanModify: Bool(true),
 	}
 
-	if res, _, err := c.GAL.PullRequests.Create(ctx, Z3E2C, req.RepoName, &pullRequest); err != nil {
+	if res, _, err := c.GAL.PullRequests.Create(ctx, Z3E2C, *req.RepoName, &pullRequest); err != nil {
 		w.WriteHeader(Status(InternalServerError))
 		log.Fatal(err)
 	} else {
-    MarshalResponse(res, w)
-  }
+		MarshalResponse(res, w)
+	}
 }
 
 // UpdateFile TODO
@@ -176,7 +172,7 @@ func (c *Config) CreateRepository(w http.ResponseWriter, r *http.Request) {
 
 	// Create repository
 	repo := github.Repository{
-		Name:          &req.RepoName,
+		Name:          req.RepoName,
 		DefaultBranch: String(MASTER),
 	}
 	if res, _, err := c.GAL.Repositories.Create(ctx, Z3E2C, &repo); err != nil {
@@ -196,7 +192,7 @@ func (c *Config) CreateBranch(w http.ResponseWriter, r *http.Request) {
 	UnmarshalRequest(req, w, r)
 
 	// Get master reference
-	masterRef, res, err := c.GAL.Git.GetRef(ctx, Z3E2C, req.RepoName, fmt.Sprintf("refs/heads/%s", MASTER))
+	masterRef, res, err := c.GAL.Git.GetRef(ctx, Z3E2C, *req.RepoName, fmt.Sprintf("refs/heads/%s", MASTER))
 	if err != nil {
 		w.WriteHeader(Status(InternalServerError))
 		log.Fatal(err)
@@ -214,7 +210,7 @@ func (c *Config) CreateBranch(w http.ResponseWriter, r *http.Request) {
 			URL:  String(fmt.Sprintf("https://api.github.com/repos/%s/%s/git/commits/%s", Z3E2C, req.RepoName, masterRef)),
 		},
 	}
-	if res, _, err := c.GAL.Git.CreateRef(ctx, Z3E2C, req.RepoName, &reference); err != nil {
+	if res, _, err := c.GAL.Git.CreateRef(ctx, Z3E2C, *req.RepoName, &reference); err != nil {
 		w.WriteHeader(Status(InternalServerError))
 		log.Fatal(err)
 	} else {
