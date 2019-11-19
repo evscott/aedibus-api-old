@@ -13,6 +13,13 @@ type ReqCreateBranch struct {
 	BranchName string `json:"branchName"`
 }
 
+type ReqCreatePR struct {
+	RepoName string `json:"repoName"`
+	Title    string `json:"title"`
+	Body     string `json:"body"`
+	Head     string `json:"head"`
+}
+
 type ReqCreateRepo struct {
 	RepoName string `json:"repoName"`
 }
