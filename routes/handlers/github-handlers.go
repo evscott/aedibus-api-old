@@ -17,6 +17,28 @@ type Config struct {
 	GAL *github.Client
 }
 
+func (c *Config) CreateComment(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+
+	// Unpack create reference request
+	req := &models.ReqCreateComment{}
+	ParseReqJsonBody(req, w, r)
+
+	comment := github.PullRequestComment{
+		Path:     req.Path,
+		Body:     req.Body,
+		Position: req.Position,
+		CommitID: req.CommitID,
+	}
+
+	if _, _, err := c.GAL.PullRequests.CreateComment(ctx, Z3E2C, *req.RepoName, 1, &comment); err != nil {
+		w.WriteHeader(Status(InternalServerError))
+		log.Fatal(err)
+	}
+
+	w.WriteHeader(Status(OK))
+}
+
 // UpdateFile TODO
 func (c *Config) UpdateFile(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
@@ -25,10 +47,6 @@ func (c *Config) UpdateFile(w http.ResponseWriter, r *http.Request) {
 	repo := r.FormValue("repo")
 	branch := r.FormValue("branch")
 	fileName := r.FormValue("fileName")
-	if repo == "" || branch == "" || fileName == "" {
-		w.WriteHeader(Status(InternalServerError))
-		log.Fatal("Must include form values for repo, branch, and fileName")
-	}
 
 	// Unpack request to update file
 	file, header, err := r.FormFile(fileName)
@@ -86,9 +104,6 @@ func (c *Config) UploadFile(w http.ResponseWriter, r *http.Request) {
 	repo := r.FormValue("repo")
 	branch := r.FormValue("branch")
 	fileName := r.FormValue("fileName")
-	if repo == "" || branch == "" || fileName == "" {
-		log.Fatal("Must include form values for repo, branch, and fileName")
-	}
 
 	// Unpack request to upload file
 	file, header, err := r.FormFile(fileName)
@@ -133,10 +148,6 @@ func (c *Config) CreateRepository(w http.ResponseWriter, r *http.Request) {
 	// Unpack create repository request
 	req := &models.ReqCreateRepo{}
 	ParseReqJsonBody(req, w, r)
-	if req.RepoName == "" {
-		w.WriteHeader(Status(OK))
-		log.Fatalf("Invalid request: %v\n", req)
-	}
 
 	// Create repository
 	repo := github.Repository{
@@ -153,17 +164,13 @@ func (c *Config) CreateRepository(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(Status(OK))
 }
 
-// CreateReference TODO
-func (c *Config) CreateReference(w http.ResponseWriter, r *http.Request) {
+// CreateBranch TODO
+func (c *Config) CreateBranch(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
 	// Unpack create reference request
-	req := &models.ReqCreateRef{}
+	req := &models.ReqCreateBranch{}
 	ParseReqJsonBody(req, w, r)
-	if req.RepoName == "" || req.BranchName == "" {
-		w.WriteHeader(Status(InternalServerError))
-		log.Fatalf("Invalid request: %v\n", req)
-	}
 
 	// Get master reference
 	masterRef, res, err := c.GAL.Git.GetRef(ctx, Z3E2C, req.RepoName, fmt.Sprintf("refs/heads/%s", MASTER))
