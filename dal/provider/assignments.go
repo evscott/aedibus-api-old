@@ -1,5 +1,9 @@
 package provider
 
-func (c *Config) CreateAssignment() error {
+import (
+	"context"
+)
+
+func (c *Config) CreateAssignment(ctx context.Context) error {
 	return nil
 }
