@@ -1,6 +1,7 @@
 package Routes
 
 import (
+	"github.com/evscott/z3-e2c-api/dal"
 	"github.com/evscott/z3-e2c-api/routes/handlers"
 	"github.com/evscott/z3-e2c-api/shared/logger"
 	"github.com/google/go-github/github"
@@ -10,17 +11,16 @@ import (
 type Config struct {
 	Router       *mux.Router
 	GithubRoutes *handlers.Config
+	DAL          *dal.DAL
 }
 
-func GetRoutes(router *mux.Router, github *github.Client, logger *logger.StandardLogger) *Config {
+func Init(router *mux.Router, github *github.Client, dal *dal.DAL, logger *logger.StandardLogger) {
 	c := &Config{
 		Router:       router,
-		GithubRoutes: &handlers.Config{GAL: github, Logger: logger},
+		GithubRoutes: &handlers.Config{GAL: github, Logger: logger, DAL: dal},
 	}
 
 	c.handleGithubRoutes()
-
-	return c
 }
 
 func (c *Config) handleGithubRoutes() {

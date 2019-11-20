@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/evscott/z3-e2c-api/shared"
 	"log"
 	"net/http"
 	"os"
@@ -15,8 +16,8 @@ import (
 
 func main() {
 	ctx := context.Background()
-	conf := GetConfig(ctx, mux.NewRouter())
-	_ = Routes.GetRoutes(conf.Router, conf.GithubClient, conf.Logger)
+	conf := shared.GetConfig(ctx, mux.NewRouter())
+	Routes.Init(conf.Router, conf.GithubClient, conf.DAL, conf.Logger)
 
 	// Start up
 	go func() {
@@ -45,7 +46,7 @@ func main() {
 			log.Fatal(err)
 		}
 		// Shutdown database client
-		if err := conf.DbClient.Close(); err != nil {
+		if err := conf.DAL.DB.Close(); err != nil {
 			log.Fatal(err)
 		}
 
