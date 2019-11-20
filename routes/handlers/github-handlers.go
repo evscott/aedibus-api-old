@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/evscott/z3-e2c-api/dal"
 	"io"
 	"net/http"
 	"strings"
@@ -17,6 +18,7 @@ import (
 
 type Config struct {
 	GAL    *github.Client
+	DAL    *dal.DAL
 	Logger *logger.StandardLogger
 }
 
