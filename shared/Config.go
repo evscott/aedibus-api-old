@@ -23,7 +23,7 @@ import (
 )
 
 type Specifications struct {
-	SrvPort           string `default:"7070"`
+	SrvPort           string `default:"8080"`
 	ReadWriteTimeOut  string `default:"10"`
 	HostIP            string `default:"127.0.0.1"`
 	GithubAccessToken string `default:"no token provided"`
