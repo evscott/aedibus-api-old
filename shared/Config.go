@@ -1,4 +1,4 @@
-package main
+package shared
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/evscott/z3-e2c-api/dal"
 	"github.com/evscott/z3-e2c-api/shared/logger"
 	"github.com/google/go-github/github"
 	"github.com/gorilla/mux"
@@ -17,10 +18,19 @@ import (
 )
 
 type Specifications struct {
-	SrvPort           string `default:"7070"`
+	SrvPort           string `default:"8080"`
 	ReadWriteTimeOut  string `default:"10"`
 	HostIP            string `default:"127.0.0.1"`
-	GithubAccessToken string
+	GithubAccessToken string `default:"no token provided"`
+}
+
+type dbSpecs struct {
+	Migrations string `default:"file:///app/migrations"`
+	Host       string `default:"db"`
+	Port       string `default:"5432"`
+	User       string `default:"user"`
+	Password   string `default:"password"`
+	Name       string `default:"dev"`
 }
 
 type Config struct {
@@ -29,6 +39,7 @@ type Config struct {
 	Server       *http.Server
 	GithubClient *github.Client
 	Logger       *logger.StandardLogger
+	DAL          *dal.DAL
 }
 
 func GetConfig(ctx context.Context, router *mux.Router) *Config {
@@ -70,6 +81,15 @@ func GetConfig(ctx context.Context, router *mux.Router) *Config {
 	tc := oauth2.NewClient(ctx, ts)
 	githubClient := github.NewClient(tc)
 	config.GithubClient = githubClient
+
+	time.Sleep(time.Second * 2) // Snooze until database is spun up
+
+	/***** Setup DAL *****/
+	db := dbSpecs{}
+	if err := envconfig.Process("DB", &db); err != nil {
+		log.ConfigError(err)
+	}
+	config.DAL = dal.NewDAL(config.Logger, db.Host, db.Port, db.User, db.Password, db.Name, db.Migrations)
 
 	return config
 }

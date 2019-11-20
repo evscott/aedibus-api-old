@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+
+  db:
+    container_name: z3-e2c-db
+    image: postgres
+    hostname: db
+    environment:
+      GET_HOST_FROM: dns
+      POSTGRES_DB: dev
+      POSTGRES_USER: user
+      POSTGRES_PASWORD: password
+    ports:
+      - 5432:5432
+    networks:
+      - z3-e2c-net
+
+  z3-e2c-api:
+    container_name: z3-e2c-api
+    image: escott07/z3-e2c-api:latest
+    hostname: z3
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      GET_HOSTS_FROM: dns
+      Z3_GITHUBACCESSTOKEN: 7edf9968af97ac2a755ddc70fcacf8e1213d077d
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: user
+      DB_PASSWORD: password
+      DB_MIGRATIONS: file:///app/migrations
+    networks:
+      - z3-e2c-net
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+    links:
+      - db
+    labels:
+      kompose.service.type: LoadBalancer
+
+networks:
+  z3-e2c-net:
+    driver: bridge
