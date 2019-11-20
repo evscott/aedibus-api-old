@@ -12,15 +12,13 @@ type Config struct {
 	GithubRoutes *handlers.Config
 }
 
-func GetRoutes(router *mux.Router, github *github.Client, logger *logger.StandardLogger) *Config {
+func Init(router *mux.Router, github *github.Client, logger *logger.StandardLogger) {
 	c := &Config{
 		Router:       router,
 		GithubRoutes: &handlers.Config{GAL: github, Logger: logger},
 	}
 
 	c.handleGithubRoutes()
-
-	return c
 }
 
 func (c *Config) handleGithubRoutes() {
