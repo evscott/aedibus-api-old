@@ -4,8 +4,8 @@ go 1.13
 
 require (
 	github.com/bndr/gojenkins v0.2.1-0.20181125150310-de43c03cf849
-	github.com/go-pg/pg/v9 v9.0.1 // indirect
-	github.com/golang-migrate/migrate v3.5.4+incompatible // indirect
+	github.com/go-pg/pg/v9 v9.0.1
+	github.com/golang-migrate/migrate v3.5.4+incompatible
 	github.com/golang-migrate/migrate/v4 v4.7.0
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/gorilla/mux v1.7.3

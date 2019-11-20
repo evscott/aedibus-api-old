@@ -46,7 +46,7 @@ func main() {
 			log.Fatal(err)
 		}
 		// Shutdown database client
-		if err := conf.DbClient.Close(); err != nil {
+		if err := conf.DAL.DB.Close(); err != nil {
 			log.Fatal(err)
 		}
 

@@ -25,10 +25,12 @@ services:
       dockerfile: Dockerfile
     environment:
       GET_HOSTS_FROM: dns
-      Z3_DB_HOST: db
-      Z3_DB_USER: user
-      Z3_DB_PASSWORD: password
-      Z3_DB_MIGRATIONS: file:///app/migrations
+      Z3_GITHUBACCESSTOKEN: 7edf9968af97ac2a755ddc70fcacf8e1213d077d
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: user
+      DB_PASSWORD: password
+      DB_MIGRATIONS: file:///app/migrations
     networks:
       - z3-e2c-net
     ports:
