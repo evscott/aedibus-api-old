@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"github.com/evscott/z3-e2c-api/shared"
 	"log"
 	"net/http"
 	"os"
@@ -16,7 +15,7 @@ import (
 
 func main() {
 	ctx := context.Background()
-	conf := shared.GetConfig(ctx, mux.NewRouter())
+	conf := GetConfig(ctx, mux.NewRouter())
 	Router.Init(conf.Router, conf.GithubClient, conf.DAL, conf.Logger)
 
 	// Start up
