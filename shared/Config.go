@@ -84,7 +84,7 @@ func GetConfig(ctx context.Context, router *mux.Router) *Config {
 
 	time.Sleep(time.Second * 2) // Snooze until database is spun up
 
-	/***** Setup DAL *****/
+	/***** Setup DB *****/
 	db := dbSpecs{}
 	if err := envconfig.Process("DB", &db); err != nil {
 		log.ConfigError(err)

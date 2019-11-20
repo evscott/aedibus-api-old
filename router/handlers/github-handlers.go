@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/evscott/z3-e2c-api/dal"
+	"github.com/evscott/z3-e2c-api/shared/marsh"
 	"io"
 	"net/http"
 	"strings"
@@ -17,8 +18,8 @@ import (
 )
 
 type Config struct {
-	GAL    *github.Client
 	DAL    *dal.DAL
+	GAL    *github.Client
 	Logger *logger.StandardLogger
 }
 
@@ -30,7 +31,7 @@ func (c *Config) CreateComment(w http.ResponseWriter, r *http.Request) {
 
 	// Unmarshal create comment request
 	req := &models.ReqCreateComment{}
-	UnmarshalRequest(req, w, r)
+	marsh.UnmarshalRequest(req, w, r)
 
 	// Create comment
 	comment := github.PullRequestComment{
@@ -43,7 +44,7 @@ func (c *Config) CreateComment(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(Status(InternalServerError))
 		c.Logger.GalError(err)
 	} else { // Success
-		MarshalResponse(res, w)
+		marsh.MarshalResponse(res, w)
 	}
 }
 
@@ -55,7 +56,7 @@ func (c *Config) CreatePullRequest(w http.ResponseWriter, r *http.Request) {
 
 	// Unmarshal create repository request
 	req := &models.ReqCreatePR{}
-	UnmarshalRequest(req, w, r)
+	marsh.UnmarshalRequest(req, w, r)
 
 	// Create pull request
 	pullRequest := github.NewPullRequest{
@@ -70,7 +71,7 @@ func (c *Config) CreatePullRequest(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(Status(InternalServerError))
 		c.Logger.GalError(err)
 	} else { // Success
-		MarshalResponse(res, w)
+		marsh.MarshalResponse(res, w)
 	}
 }
 
@@ -127,7 +128,7 @@ func (c *Config) UpdateFile(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(Status(InternalServerError))
 		c.Logger.GalError(err)
 	} else { // Success
-		MarshalResponse(res, w)
+		marsh.MarshalResponse(res, w)
 	}
 }
 
@@ -172,7 +173,7 @@ func (c *Config) UploadFile(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(Status(InternalServerError))
 		c.Logger.GalError(err)
 	} else { // Success
-		MarshalResponse(res, w)
+		marsh.MarshalResponse(res, w)
 	}
 }
 
@@ -184,7 +185,7 @@ func (c *Config) CreateRepository(w http.ResponseWriter, r *http.Request) {
 
 	// Unmarshal create repository request
 	req := &models.ReqCreateRepo{}
-	UnmarshalRequest(req, w, r)
+	marsh.UnmarshalRequest(req, w, r)
 
 	// Create repository
 	repo := github.Repository{
@@ -195,7 +196,7 @@ func (c *Config) CreateRepository(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(Status(InternalServerError))
 		c.Logger.GalError(err)
 	} else { // Success
-		MarshalResponse(res, w)
+		marsh.MarshalResponse(res, w)
 	}
 }
 
@@ -207,7 +208,7 @@ func (c *Config) CreateBranch(w http.ResponseWriter, r *http.Request) {
 
 	// Unmarshal create reference request
 	req := &models.ReqCreateBranch{}
-	UnmarshalRequest(req, w, r)
+	marsh.UnmarshalRequest(req, w, r)
 
 	// Get MASTER reference
 	masterBranch, res, err := c.GAL.Git.GetRef(ctx, consts.Z3E2C, *req.RepoName, fmt.Sprintf("refs/heads/%s", consts.MASTER))
@@ -232,6 +233,6 @@ func (c *Config) CreateBranch(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(Status(InternalServerError))
 		c.Logger.GalError(err)
 	} else { // Success
-		MarshalResponse(res, w)
+		marsh.MarshalResponse(res, w)
 	}
 }
