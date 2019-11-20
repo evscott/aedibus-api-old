@@ -38,11 +38,17 @@ func main() {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 		defer cancel()
 
+		log.Println("Shutting down...")
+
+		// Shutdown server
 		if err := srv.Shutdown(ctx); err != nil {
 			log.Fatal(err)
 		}
+		// Shutdown database client
+		if err := conf.DbClient.Close(); err != nil {
+			log.Fatal(err)
+		}
 
-		log.Println("Shutting down...")
 		os.Exit(0)
 	}(conf.Server)
 }

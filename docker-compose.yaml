@@ -1,4 +1,3 @@
-
 version: '3'
 
 services:
@@ -10,7 +9,7 @@ services:
     environment:
       GET_HOST_FROM: dns
       POSTGRES_DB: dev
-      POSTGRES_USER: postgres-dev
+      POSTGRES_USER: user
       POSTGRES_PASWORD: password
     ports:
       - 5432:5432
@@ -19,17 +18,19 @@ services:
 
   z3-e2c-api:
     container_name: z3-e2c-api
-    image: escott07/z3-e2c-api:v1
-    hostname: ze-e2c-api
+    image: escott07/z3-e2c-api:latest
+    hostname: z3
     build:
       context: .
       dockerfile: Dockerfile
     environment:
       GET_HOSTS_FROM: dns
+      Z3_DB_HOST: db
+      Z3_DB_USER: user
+      Z3_DB_PASSWORD: password
+      Z3_DB_MIGRATIONS: file:///app/migrations
     networks:
       - z3-e2c-net
-    volumes:
-      - .:/go/src/z3-e2c-api
     ports:
       - 8080:8080
     depends_on:
