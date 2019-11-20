@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS Assignments (
     RepoName varchar (255) PRIMARY KEY,
     MasterBranch varchar (255) NOT NULL,
+    BlobShah varchar(40) NOT NULL,
     LatestCommit varchar (40) NOT NULL
 );
 

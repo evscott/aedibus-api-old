@@ -220,12 +220,12 @@ func (c *Config) CreateBranch(w http.ResponseWriter, r *http.Request) {
 
 	// Create branch
 	reference := github.Reference{
-		Ref: utils.String(fmt.Sprintf("refs/heads/%s", req.BranchName)),
-		URL: utils.String(fmt.Sprintf("https://api.github.com/repos/%s/%s/git/refs/heads/%s", consts.Z3E2C, req.RepoName, req.BranchName)),
+		Ref: utils.String(fmt.Sprintf("refs/heads/%s", *req.BranchName)),
+		URL: utils.String(fmt.Sprintf("https://api.github.com/repos/%s/%s/git/refs/heads/%s", consts.Z3E2C, *req.RepoName, *req.BranchName)),
 		Object: &github.GitObject{
 			Type: utils.String("commit"),
 			SHA:  masterBranch.Object.SHA,
-			URL:  utils.String(fmt.Sprintf("https://api.github.com/repos/%s/%s/git/commits/%s", consts.Z3E2C, req.RepoName, consts.MASTER)),
+			URL:  utils.String(fmt.Sprintf("https://api.github.com/repos/%s/%s/git/commits/%s", consts.Z3E2C, *req.RepoName, consts.MASTER)),
 		},
 	}
 	if res, _, err := c.GAL.Git.CreateRef(ctx, consts.Z3E2C, *req.RepoName, &reference); err != nil {
