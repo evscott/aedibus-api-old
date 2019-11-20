@@ -2,7 +2,7 @@ package marsh
 
 import (
 	"encoding/json"
-	http2 "github.com/evscott/z3-e2c-api/shared/http"
+	http2 "github.com/evscott/z3-e2c-api/shared/http-codes"
 	"io/ioutil"
 	"log"
 	"net/http"

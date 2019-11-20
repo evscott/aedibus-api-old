@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/evscott/z3-e2c-api/dal"
-	http2 "github.com/evscott/z3-e2c-api/shared/http"
+	status "github.com/evscott/z3-e2c-api/shared/http-codes"
 	"github.com/evscott/z3-e2c-api/shared/marsh"
 	"io"
 	"net/http"
@@ -42,7 +42,7 @@ func (c *Config) CreateComment(w http.ResponseWriter, r *http.Request) {
 		CommitID: req.CommitID,
 	}
 	if res, _, err := c.GAL.PullRequests.CreateComment(ctx, consts.Z3E2C, *req.RepoName, 1, &comment); err != nil {
-		w.WriteHeader(http2.Status(http2.InternalServerError))
+		w.WriteHeader(status.Status(status.InternalServerError))
 		c.Logger.GalError(err)
 	} else { // Success
 		marsh.MarshalResponse(res, w)
@@ -69,14 +69,14 @@ func (c *Config) CreatePullRequest(w http.ResponseWriter, r *http.Request) {
 		MaintainerCanModify: utils.Bool(true),
 	}
 	if res, _, err := c.GAL.PullRequests.Create(ctx, consts.Z3E2C, *req.RepoName, &pullRequest); err != nil {
-		w.WriteHeader(http2.Status(http2.InternalServerError))
+		w.WriteHeader(status.Status(status.InternalServerError))
 		c.Logger.GalError(err)
 	} else { // Success
 		marsh.MarshalResponse(res, w)
 	}
 }
 
-// UpdateFigithub-httple TODO
+// UpdateFile
 //
 //
 func (c *Config) UpdateFile(w http.ResponseWriter, r *http.Request) {
@@ -90,7 +90,7 @@ func (c *Config) UpdateFile(w http.ResponseWriter, r *http.Request) {
 	// Extract file from request form
 	file, header, err := r.FormFile(fileName)
 	if err != nil {
-		w.WriteHeader(http2.Status(http2.InternalServerError))
+		w.WriteHeader(status.Status(status.InternalServerError))
 		c.Logger.GalError(err)
 	} else {
 		name := strings.Split(header.Filename, ".")
@@ -101,7 +101,7 @@ func (c *Config) UpdateFile(w http.ResponseWriter, r *http.Request) {
 	// Read file contents through buffer
 	buffer := bytes.Buffer{}
 	if _, err := io.Copy(&buffer, file); err != nil {
-		w.WriteHeader(http2.Status(http2.InternalServerError))
+		w.WriteHeader(status.Status(status.InternalServerError))
 		c.Logger.GalError(err)
 	}
 	contents := buffer.Bytes()
@@ -111,7 +111,7 @@ func (c *Config) UpdateFile(w http.ResponseWriter, r *http.Request) {
 	var sha string
 	getOptions := github.RepositoryContentGetOptions{Ref: fmt.Sprintf("heads/%s", branch)}
 	if contents, _, res, err := c.GAL.Repositories.GetContents(ctx, consts.Z3E2C, repo, fileName, &getOptions); err != nil {
-		w.WriteHeader(http2.Status(http2.InternalServerError))
+		w.WriteHeader(status.Status(status.InternalServerError))
 		c.Logger.GalError(err)
 	} else {
 		fmt.Printf("Got sha for file %s %v\n", fileName, res)
@@ -126,7 +126,7 @@ func (c *Config) UpdateFile(w http.ResponseWriter, r *http.Request) {
 		SHA:     &sha,
 	}
 	if res, _, err := c.GAL.Repositories.UpdateFile(ctx, consts.Z3E2C, repo, fileName, &fileOptions); err != nil {
-		w.WriteHeader(http2.Status(http2.InternalServerError))
+		w.WriteHeader(status.Status(status.InternalServerError))
 		c.Logger.GalError(err)
 	} else { // Success
 		marsh.MarshalResponse(res, w)
@@ -147,7 +147,7 @@ func (c *Config) UploadFile(w http.ResponseWriter, r *http.Request) {
 	// Extract file from request form
 	file, header, err := r.FormFile(fileName)
 	if err != nil {
-		w.WriteHeader(http2.Status(http2.InternalServerError))
+		w.WriteHeader(status.Status(status.InternalServerError))
 		c.Logger.GalError(err)
 	} else {
 		name := strings.Split(header.Filename, ".")
@@ -158,7 +158,7 @@ func (c *Config) UploadFile(w http.ResponseWriter, r *http.Request) {
 	// Read file contents through buffer
 	buffer := bytes.Buffer{}
 	if _, err := io.Copy(&buffer, file); err != nil {
-		w.WriteHeader(http2.Status(http2.InternalServerError))
+		w.WriteHeader(status.Status(status.InternalServerError))
 		c.Logger.GalError(err)
 	}
 	contents := buffer.Bytes()
@@ -171,14 +171,14 @@ func (c *Config) UploadFile(w http.ResponseWriter, r *http.Request) {
 		Branch:  &branch,
 	}
 	if res, _, err := c.GAL.Repositories.CreateFile(ctx, consts.Z3E2C, repo, fileName, &fileOptions); err != nil {
-		w.WriteHeader(http2.Status(http2.InternalServerError))
+		w.WriteHeader(status.Status(status.InternalServerError))
 		c.Logger.GalError(err)
 	} else { // Success
 		marsh.MarshalResponse(res, w)
 	}
 }
 
-// CreateRepository TODO
+// CreateRepository TODOTODO
 //
 //
 func (c *Config) CreateRepository(w http.ResponseWriter, r *http.Request) {
@@ -193,11 +193,20 @@ func (c *Config) CreateRepository(w http.ResponseWriter, r *http.Request) {
 		Name:          req.RepoName,
 		DefaultBranch: utils.String(consts.MASTER),
 	}
-	if res, _, err := c.GAL.Repositories.Create(ctx, consts.Z3E2C, &repo); err != nil {
-		w.WriteHeader(http2.Status(http2.InternalServerError))
+	if _, _, err := c.GAL.Repositories.Create(ctx, consts.Z3E2C, &repo); err != nil {
+		w.WriteHeader(status.Status(status.InternalServerError))
 		c.Logger.GalError(err)
-	} else { // Success
-		marsh.MarshalResponse(res, w)
+	}
+
+	assignment := &models.Assignment{
+		Name:   *repo.Name,
+		Branch: *repo.DefaultBranch,
+	}
+	if err := c.DAL.Provider.CreateAssignment(ctx, assignment); err != nil {
+		w.WriteHeader(status.Status(status.InternalServerError))
+		c.Logger.DalError(err)
+	} else {
+		w.WriteHeader(status.Status(status.OK))
 	}
 }
 
@@ -214,7 +223,7 @@ func (c *Config) CreateBranch(w http.ResponseWriter, r *http.Request) {
 	// Get MASTER reference
 	masterBranch, res, err := c.GAL.Git.GetRef(ctx, consts.Z3E2C, *req.RepoName, fmt.Sprintf("refs/heads/%s", consts.MASTER))
 	if err != nil {
-		w.WriteHeader(http2.Status(http2.InternalServerError))
+		w.WriteHeader(status.Status(status.InternalServerError))
 		c.Logger.GalError(err)
 	} else {
 		fmt.Printf("Got master branch: %v\n", res)
@@ -231,7 +240,7 @@ func (c *Config) CreateBranch(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 	if res, _, err := c.GAL.Git.CreateRef(ctx, consts.Z3E2C, *req.RepoName, &reference); err != nil {
-		w.WriteHeader(http2.Status(http2.InternalServerError))
+		w.WriteHeader(status.Status(status.InternalServerError))
 		c.Logger.GalError(err)
 	} else { // Success
 		marsh.MarshalResponse(res, w)

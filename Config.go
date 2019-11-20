@@ -43,7 +43,7 @@ type Config struct {
 }
 
 func GetConfig(ctx context.Context, router *mux.Router) *Config {
-	// Setup logger
+	// Root log
 	log := logger.NewLogger()
 
 	/*****  Setup z3-12c-api specifications *****/
@@ -84,7 +84,7 @@ func GetConfig(ctx context.Context, router *mux.Router) *Config {
 
 	time.Sleep(time.Second * 2) // Snooze until database is spun up
 
-	/***** Setup DB *****/
+	/***** Setup Postgres client & Database Access Layer (DAL) *****/
 	db := dbSpecs{}
 	if err := envconfig.Process("DB", &db); err != nil {
 		log.ConfigError(err)

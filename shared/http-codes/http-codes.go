@@ -1,4 +1,4 @@
-package http
+package http_codes
 
 type HttpStatus int
 

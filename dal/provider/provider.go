@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"github.com/evscott/z3-e2c-api/models"
 	"github.com/evscott/z3-e2c-api/shared/logger"
 	"github.com/go-pg/pg/v9"
 )
@@ -20,5 +21,5 @@ func Init(logger *logger.StandardLogger, db *pg.DB) *Config {
 
 type Provider interface {
 	// Assignments
-	CreateAssignment(ctx context.Context) error
+	CreateAssignment(ctx context.Context, assignment *models.Assignment) error
 }
