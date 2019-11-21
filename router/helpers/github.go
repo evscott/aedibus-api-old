@@ -88,7 +88,7 @@ func (c *Config) GetReadmeHelper(ctx context.Context, w http.ResponseWriter, rep
 // TODO
 //
 //
-func (c *Config) GetFileHelper(ctx context.Context, w http.ResponseWriter, repoName, branchName, path string) {
+func (c *Config) GetFileContentsHelper(ctx context.Context, w http.ResponseWriter, repoName, branchName, path string) {
 	// Get blob sha of file from Github to be used as target of update
 	getOptions := github.RepositoryContentGetOptions{Ref: fmt.Sprintf("heads/%s", branchName)}
 	fileContent, _, _, err := c.GAL.Repositories.GetContents(ctx, consts.Z3E2C, repoName, path, &getOptions)

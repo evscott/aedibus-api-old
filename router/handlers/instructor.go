@@ -48,7 +48,7 @@ func (c *Config) UploadFile(w http.ResponseWriter, r *http.Request) {
 	contents := c.helpers.ReceiveFileContentsHelper(w, r, fileName)
 
 	c.helpers.CreateFileHelper(ctx, w, repoName, branchName, fileName, contents)
-	c.helpers.UpdateAssignmentHelper(ctx, w, repoName, branchName)
+	c.helpers.UpdateAssignmentHelper(ctx, w, repoName, branchName, fileName)
 }
 
 // TODO
@@ -79,11 +79,11 @@ func (c *Config) GetReadme(w http.ResponseWriter, r *http.Request) {
 // TODO
 //
 //
-func (c *Config) GetFile(w http.ResponseWriter, r *http.Request) {
+func (c *Config) GetFileContents(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
 	req := &models.ReqGetFile{}
 	marsh.UnmarshalRequest(req, w, r)
 
-	c.helpers.GetFileHelper(ctx, w, *req.Name, *req.Branch, *req.Path)
+	c.helpers.GetFileContentsHelper(ctx, w, *req.Name, *req.Branch, *req.Path)
 }

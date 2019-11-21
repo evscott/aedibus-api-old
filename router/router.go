@@ -34,7 +34,7 @@ func (c *Config) handleGeneralRoutes() {
 	// Update File
 	c.Router.HandleFunc(Path(Github, File), c.Handlers.UpdateFile).Methods(PUT)
 	// Get file
-	c.Router.HandleFunc(Path(File), c.Handlers.GetFile).Methods(GET)
+	c.Router.HandleFunc(Path(File), c.Handlers.GetFileContents).Methods(GET)
 	// Get Readme
 	c.Router.HandleFunc(Path(Readme), c.Handlers.GetReadme).Methods(GET)
 }

@@ -69,7 +69,7 @@ func (c *Config) ReceiveFileContentsHelper(w http.ResponseWriter, r *http.Reques
 
 // TODO
 //
-func (c *Config) UpdateAssignmentHelper(ctx context.Context, w http.ResponseWriter, repo, branch string) {
+func (c *Config) UpdateAssignmentHelper(ctx context.Context, w http.ResponseWriter, repo, branch, fileName string) {
 	masterBranch, _, err := c.GAL.Git.GetRef(ctx, consts.Z3E2C, repo, fmt.Sprintf("refs/heads/%s", consts.MASTER))
 	if err != nil {
 		w.WriteHeader(status.Status(status.InternalServerError))
