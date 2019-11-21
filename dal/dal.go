@@ -75,7 +75,7 @@ func (d *DAL) runMigrations() {
 	if err := m.Up(); err != nil && !strings.EqualFold(err.Error(), "no change") {
 		d.logger.ConfigError(err)
 	} else {
-		log.Printf("Successfully ran migrations")
+		d.logger.Printf("Successfully ran migrations")
 	}
 
 	if err := db.Close(); err != nil {
