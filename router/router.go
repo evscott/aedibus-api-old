@@ -13,10 +13,10 @@ type Config struct {
 	Handlers *handlers.Config
 }
 
-func Init(router *mux.Router, github *github.Client, dal *dal.DAL, logger *logger.StandardLogger) {
+func Init(router *mux.Router, dal *dal.DAL, github *github.Client, logger *logger.StandardLogger) {
 	c := &Config{
 		Router:   router,
-		Handlers: &handlers.Config{DAL: dal, GAL: github, Logger: logger},
+		Handlers: handlers.Init(dal, github, logger),
 	}
 
 	c.handleGithubRoutes()
