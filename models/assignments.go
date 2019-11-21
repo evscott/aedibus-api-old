@@ -1,14 +1,14 @@
 package models
 
 type Assignment struct {
-	Name     string `json:"name,pk"`
-	Branch   string `json:"branch,notnull"`
-	BlobShah string `json:"blob_shah"`
+	Name     string `pg:"name,pk"`
+	Branch   string `pg:"branch"`
+	BlobShah string `pg:"blob_shah"`
 }
 
 type Submission struct {
-	Assignment string `json:"assignment,pk"`
-	Branch     string `json:"branch,notnull"`
-	Submitted  bool   `json:"submitted"`
-	Grade      bool   `json:"grade"`
+	Assignment string `pg:"assignment,pk"`
+	Branch     string `pg:"branch"`
+	Submitted  bool   `pg:"submitted"`
+	Grade      bool   `pg:"grade"`
 }

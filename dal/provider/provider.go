@@ -22,4 +22,5 @@ func Init(logger *logger.StandardLogger, db *pg.DB) *Config {
 type Provider interface {
 	// Assignments
 	CreateAssignment(ctx context.Context, assignment *models.Assignment) error
+	UpdateAssignment(ctx context.Context, assignment *models.Assignment) error
 }
