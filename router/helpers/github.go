@@ -3,6 +3,7 @@ package helpers
 import (
 	"context"
 	"fmt"
+	"github.com/evscott/z3-e2c-api/models"
 	"net/http"
 
 	consts "github.com/evscott/z3-e2c-api/shared/constants"
@@ -14,7 +15,7 @@ import (
 
 // TODO
 //
-func (c *Config) CreatePullRequest(ctx context.Context, w http.ResponseWriter, title, head, body, repoName string) {
+func (c *Config) CreatePullRequestHelper(ctx context.Context, w http.ResponseWriter, title, head, body, repoName string) {
 	pullRequest := github.NewPullRequest{
 		Title:               &title,
 		Head:                &head,
@@ -33,7 +34,7 @@ func (c *Config) CreatePullRequest(ctx context.Context, w http.ResponseWriter, t
 
 // TODO
 //
-func (c *Config) CreateRepository(ctx context.Context, w http.ResponseWriter, repoName string) {
+func (c *Config) CreateRepositoryHelper(ctx context.Context, w http.ResponseWriter, repoName string) {
 	repo := github.Repository{
 		Name:          &repoName,
 		DefaultBranch: utils.String(consts.MASTER),
@@ -46,7 +47,7 @@ func (c *Config) CreateRepository(ctx context.Context, w http.ResponseWriter, re
 
 // TODO
 //
-func (c *Config) CreateFile(ctx context.Context, w http.ResponseWriter, repoName, branchName, fileName string, contents []byte) {
+func (c *Config) CreateFileHelper(ctx context.Context, w http.ResponseWriter, repoName, branchName, fileName string, contents []byte) {
 	fileOptions := github.RepositoryContentFileOptions{
 		Message: utils.String("Uploading file"),
 		Content: contents,
@@ -60,7 +61,59 @@ func (c *Config) CreateFile(ctx context.Context, w http.ResponseWriter, repoName
 
 // TODO
 //
-func (c *Config) UpdateFile(ctx context.Context, w http.ResponseWriter, repo, branch, fileName string, contents []byte) {
+//
+func (c *Config) GetReadmeHelper(ctx context.Context, w http.ResponseWriter, repoName, branchName string) {
+	// Get blob sha of file from Github to be used as target of update
+	getOptions := github.RepositoryContentGetOptions{Ref: fmt.Sprintf("heads/%s", branchName)}
+	fileContent, _, err := c.GAL.Repositories.GetReadme(ctx, consts.Z3E2C, repoName, &getOptions)
+	if err != nil {
+		w.WriteHeader(status.Status(status.InternalServerError))
+		c.Logger.GalError(err)
+	}
+	content, err := fileContent.GetContent()
+	if err != nil {
+		w.WriteHeader(status.Status(status.InternalServerError))
+		c.Logger.GalError(err)
+	}
+
+	result := models.ResGetFile{
+		Name:    &repoName,
+		Branch:  &branchName,
+		Content: &content,
+	}
+
+	marsh.MarshalResponse(result, w)
+}
+
+// TODO
+//
+//
+func (c *Config) GetFileHelper(ctx context.Context, w http.ResponseWriter, repoName, branchName, path string) {
+	// Get blob sha of file from Github to be used as target of update
+	getOptions := github.RepositoryContentGetOptions{Ref: fmt.Sprintf("heads/%s", branchName)}
+	fileContent, _, _, err := c.GAL.Repositories.GetContents(ctx, consts.Z3E2C, repoName, path, &getOptions)
+	if err != nil {
+		w.WriteHeader(status.Status(status.InternalServerError))
+		c.Logger.GalError(err)
+	}
+	content, err := fileContent.GetContent()
+	if err != nil {
+		w.WriteHeader(status.Status(status.InternalServerError))
+		c.Logger.GalError(err)
+	}
+
+	result := models.ResGetFile{
+		Name:    &repoName,
+		Branch:  &branchName,
+		Content: &content,
+	}
+
+	marsh.MarshalResponse(result, w)
+}
+
+// TODO
+//
+func (c *Config) UpdateFileHelper(ctx context.Context, w http.ResponseWriter, repo, branch, fileName string, contents []byte) {
 	// Get blob sha of file from Github to be used as target of update
 	var sha string
 	getOptions := github.RepositoryContentGetOptions{Ref: fmt.Sprintf("heads/%s", branch)}
@@ -86,7 +139,7 @@ func (c *Config) UpdateFile(ctx context.Context, w http.ResponseWriter, repo, br
 
 // TODO
 //
-func (c *Config) CreateBranch(ctx context.Context, w http.ResponseWriter, repoName, branchName string) {
+func (c *Config) CreateBranchHelper(ctx context.Context, w http.ResponseWriter, repoName, branchName string) {
 	masterBranch, _, err := c.GAL.Git.GetRef(ctx, consts.Z3E2C, repoName, fmt.Sprintf("refs/heads/%s", consts.MASTER))
 	if err != nil {
 		w.WriteHeader(status.Status(status.InternalServerError))

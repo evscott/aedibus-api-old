@@ -13,10 +13,10 @@ type Config struct {
 	Handlers *handlers.Config
 }
 
-func Init(router *mux.Router, github *github.Client, dal *dal.DAL, logger *logger.StandardLogger) {
+func Init(router *mux.Router, dal *dal.DAL, github *github.Client, logger *logger.StandardLogger) {
 	c := &Config{
 		Router:   router,
-		Handlers: &handlers.Config{DAL: dal, GAL: github, Logger: logger},
+		Handlers: handlers.Init(dal, github, logger),
 	}
 
 	c.handleGithubRoutes()
@@ -30,21 +30,25 @@ func (c *Config) handleGithubRoutes() {
 
 func (c *Config) handleGeneralRoutes() {
 	// Upload File
-	c.Router.HandleFunc(Path(Github, File), c.Handlers.UploadAssignment).Methods(POST)
+	c.Router.HandleFunc(Path(Github, File), c.Handlers.UploadFile).Methods(POST)
 	// Update File
-	c.Router.HandleFunc(Path(Github, File), c.Handlers.UpdateAssignment).Methods(PUT)
+	c.Router.HandleFunc(Path(Github, File), c.Handlers.UpdateFile).Methods(PUT)
+	// Get file
+	c.Router.HandleFunc(Path(File), c.Handlers.GetFile).Methods(GET)
+	// Get Readme
+	c.Router.HandleFunc(Path(Readme), c.Handlers.GetReadme).Methods(GET)
 }
 
 func (c *Config) handleStudentRoutes() {
 	// Create Submission
 	c.Router.HandleFunc(Path(Github, Branch), c.Handlers.CreateSubmission).Methods(POST)
-	// Submit Assignment
+	// Submit Readme
 	c.Router.HandleFunc(Path(Github, PullRequest), c.Handlers.SubmitAssignment).Methods(POST)
 }
 
 func (c *Config) handleInstructorRoutes() {
-	// Create Assignment
+	// Create Readme
 	c.Router.HandleFunc(Path(Github, Repository), c.Handlers.CreateAssignment).Methods(POST)
-	// Create Comment on Assignment
+	// Create Comment on Readme
 	c.Router.HandleFunc(Path(Github, PullRequest, Comment), c.Handlers.CreateComment).Methods(POST)
 }

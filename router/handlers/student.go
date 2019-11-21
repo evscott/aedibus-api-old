@@ -18,7 +18,7 @@ func (c *Config) SubmitAssignment(w http.ResponseWriter, r *http.Request) {
 	req := &models.ReqCreatePR{}
 	marsh.UnmarshalRequest(req, w, r)
 
-	c.helpers.CreatePullRequest(ctx, w, *req.Title, *req.Head, *req.Body, *req.RepoName)
+	c.helpers.CreatePullRequestHelper(ctx, w, *req.Title, *req.Head, *req.Body, *req.RepoName)
 	w.WriteHeader(status.Status(status.OK))
 }
 
@@ -32,6 +32,6 @@ func (c *Config) CreateSubmission(w http.ResponseWriter, r *http.Request) {
 	req := &models.ReqCreateBranch{}
 	marsh.UnmarshalRequest(req, w, r)
 
-	c.helpers.CreateBranch(ctx, w, *req.RepoName, *req.BranchName)
+	c.helpers.CreateBranchHelper(ctx, w, *req.RepoName, *req.BranchName)
 	w.WriteHeader(status.Status(status.OK))
 }
