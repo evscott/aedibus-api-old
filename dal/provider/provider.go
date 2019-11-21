@@ -25,4 +25,7 @@ type Provider interface {
 	UpdateAssignment(ctx context.Context, assignment *models.Assignment) error
 	// Files
 	CreateFile(ctx context.Context, file *models.File) error
+	// Submissions
+	CreateSubmission(ctx context.Context, submission *models.Submission) error
+	GetSubmissionByBranchAndRepo(ctx context.Context, submission *models.Submission) error
 }

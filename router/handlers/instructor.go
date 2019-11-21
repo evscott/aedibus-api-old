@@ -9,48 +9,6 @@ import (
 	"github.com/evscott/z3-e2c-api/shared/marsh"
 )
 
-//  TODO
-//
-//
-func (c *Config) CreateComment(w http.ResponseWriter, r *http.Request) {
-	ctx := context.Background()
-
-	req := &models.ReqCreateComment{}
-	marsh.UnmarshalRequest(req, w, r)
-
-	c.helpers.CreateCommentHelper(ctx, w, *req.Path, *req.Body, *req.CommitID, *req.RepoName, *req.Position)
-}
-
-// TODO
-//
-//
-func (c *Config) UpdateFile(w http.ResponseWriter, r *http.Request) {
-	ctx := context.Background()
-
-	repoName := r.FormValue("repoName")
-	branchName := r.FormValue("branchName")
-	fileName := r.FormValue("fileName")
-	contents := c.helpers.ReceiveFileContentsHelper(w, r, fileName)
-
-	c.helpers.UpdateFileHelper(ctx, w, repoName, branchName, fileName, contents)
-	c.helpers.UpdateAssignmentHelper(ctx, w, repoName, branchName)
-}
-
-// TODO
-//
-//abc6
-func (c *Config) UploadFile(w http.ResponseWriter, r *http.Request) {
-	ctx := context.Background()
-
-	repoName := r.FormValue("repoName")
-	branchName := r.FormValue("branchName")
-	fileName := r.FormValue("fileName")
-	contents := c.helpers.ReceiveFileContentsHelper(w, r, fileName)
-
-	c.helpers.CreateFileHelper(ctx, w, repoName, branchName, fileName, contents)
-	c.helpers.UpdateAssignmentHelper(ctx, w, repoName, branchName, fileName)
-}
-
 // TODO
 //
 //
@@ -67,13 +25,33 @@ func (c *Config) CreateAssignment(w http.ResponseWriter, r *http.Request) {
 // TODO
 //
 //
-func (c *Config) GetReadme(w http.ResponseWriter, r *http.Request) {
+func (c *Config) CreateAssignmentFile(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
-	req := &models.ReqGetFile{}
-	marsh.UnmarshalRequest(req, w, r)
+	repoName := r.FormValue("repoName")
+	branchName := r.FormValue("branchName")
+	fileName := r.FormValue("fileName")
+	contents := c.helpers.ReceiveFileContentsHelper(w, r, fileName)
 
-	c.helpers.GetReadmeHelper(ctx, w, *req.Name, *req.Branch)
+	c.helpers.CreateGitFile(ctx, w, repoName, branchName, fileName, contents)
+	c.helpers.UpdateAssignmentBlob(ctx, w, repoName, branchName)
+	// TODO create db file
+}
+
+// TODO
+//
+//
+func (c *Config) UpdateAssignmentFile(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+
+	repoName := r.FormValue("repoName")
+	branchName := r.FormValue("branchName")
+	fileName := r.FormValue("fileName")
+	contents := c.helpers.ReceiveFileContentsHelper(w, r, fileName)
+
+	c.helpers.UpdateFileHelper(ctx, w, repoName, branchName, fileName, contents)
+	c.helpers.UpdateAssignmentBlob(ctx, w, repoName, branchName)
+	// TODO update db file
 }
 
 // TODO
@@ -86,4 +64,16 @@ func (c *Config) GetFileContents(w http.ResponseWriter, r *http.Request) {
 	marsh.UnmarshalRequest(req, w, r)
 
 	c.helpers.GetFileContentsHelper(ctx, w, *req.Name, *req.Branch, *req.Path)
+}
+
+//  TODO
+//
+//
+func (c *Config) CreateComment(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+
+	req := &models.ReqCreateComment{}
+	marsh.UnmarshalRequest(req, w, r)
+
+	c.helpers.CreateCommentHelper(ctx, w, *req.Path, *req.Body, *req.CommitID, *req.RepoName, *req.Position)
 }

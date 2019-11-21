@@ -19,36 +19,27 @@ func Init(router *mux.Router, dal *dal.DAL, github *github.Client, logger *logge
 		Handlers: handlers.Init(dal, github, logger),
 	}
 
-	c.handleGithubRoutes()
+	c.initRoutes()
 }
 
-func (c *Config) handleGithubRoutes() {
-	c.handleGeneralRoutes()
-	c.handleStudentRoutes()
-	c.handleInstructorRoutes()
+func (c *Config) initRoutes() {
+	c.initGeneralRoutes()
+	c.initStudentRoutes()
+	c.initInstructorRoutes()
 }
 
-func (c *Config) handleGeneralRoutes() {
-	// Upload File
-	c.Router.HandleFunc(Path(Github, File), c.Handlers.UploadFile).Methods(POST)
-	// Update File
-	c.Router.HandleFunc(Path(Github, File), c.Handlers.UpdateFile).Methods(PUT)
-	// Get file
-	c.Router.HandleFunc(Path(File), c.Handlers.GetFileContents).Methods(GET)
-	// Get Readme
+func (c *Config) initGeneralRoutes() {
 	c.Router.HandleFunc(Path(Readme), c.Handlers.GetReadme).Methods(GET)
 }
 
-func (c *Config) handleStudentRoutes() {
-	// Create Submission
-	c.Router.HandleFunc(Path(Github, Branch), c.Handlers.CreateSubmission).Methods(POST)
-	// Submit Readme
-	c.Router.HandleFunc(Path(Github, PullRequest), c.Handlers.SubmitAssignment).Methods(POST)
+func (c *Config) initStudentRoutes() {
+	c.Router.HandleFunc(Path(Submission), c.Handlers.CreateSubmission).Methods(POST)
+	c.Router.HandleFunc(Path(Submission, Submit), c.Handlers.CreateSubmission).Methods(POST)
 }
 
-func (c *Config) handleInstructorRoutes() {
-	// Create Readme
-	c.Router.HandleFunc(Path(Github, Repository), c.Handlers.CreateAssignment).Methods(POST)
-	// Create Comment on Readme
-	c.Router.HandleFunc(Path(Github, PullRequest, Comment), c.Handlers.CreateComment).Methods(POST)
+func (c *Config) initInstructorRoutes() {
+	c.Router.HandleFunc(Path(Assignment), c.Handlers.CreateAssignment).Methods(POST)
+	c.Router.HandleFunc(Path(Assignment, File), c.Handlers.CreateAssignmentFile).Methods(POST)
+	c.Router.HandleFunc(Path(Assignment, File), c.Handlers.UpdateAssignmentFile).Methods(PUT)
+	c.Router.HandleFunc(Path(File, Contents), c.Handlers.GetFileContents).Methods(GET)
 }

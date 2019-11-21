@@ -12,19 +12,6 @@ import (
 // TODO
 //
 //
-func (c *Config) SubmitAssignment(w http.ResponseWriter, r *http.Request) {
-	ctx := context.Background()
-
-	req := &models.ReqCreatePR{}
-	marsh.UnmarshalRequest(req, w, r)
-
-	c.helpers.CreatePullRequestHelper(ctx, w, *req.Title, *req.Head, *req.Body, *req.RepoName)
-	w.WriteHeader(status.Status(status.OK))
-}
-
-// TODO
-//
-//
 func (c *Config) CreateSubmission(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
@@ -32,6 +19,21 @@ func (c *Config) CreateSubmission(w http.ResponseWriter, r *http.Request) {
 	req := &models.ReqCreateBranch{}
 	marsh.UnmarshalRequest(req, w, r)
 
-	c.helpers.CreateBranchHelper(ctx, w, *req.RepoName, *req.BranchName)
+	c.helpers.CreateGitBranch(ctx, w, *req.RepoName, *req.BranchName)
+	c.helpers.CreateDbSubmission(ctx, *req.RepoName, *req.BranchName)
+
+	w.WriteHeader(status.Status(status.OK))
+}
+
+// TODO
+//
+//
+func (c *Config) SubmitAssignment(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+
+	req := &models.ReqCreatePR{}
+	marsh.UnmarshalRequest(req, w, r)
+
+	c.helpers.CreatePullRequestHelper(ctx, w, *req.Title, *req.Head, *req.Body, *req.RepoName)
 	w.WriteHeader(status.Status(status.OK))
 }

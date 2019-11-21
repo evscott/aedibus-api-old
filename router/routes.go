@@ -6,14 +6,14 @@ type Resource string
 
 /***** API Resources *****/
 const (
-	Github      Resource = "/github"
-	Repository  Resource = "/repository"
-	Branch      Resource = "/branch"
-	File        Resource = "/file"
-	PullRequest Resource = "/pull-request"
-	Comment     Resource = "/comment"
-
-	Readme Resource = "/readme"
+	Student    Resource = "/student"
+	Instructor Resource = "/instructor"
+	Assignment Resource = "/assignment"
+	Submission Resource = "/submission"
+	Submit     Resource = "/submit"
+	File       Resource = "/file"
+	Contents   Resource = "/contents"
+	Readme     Resource = "/readme"
 )
 
 /***** HTTP Methods *****/

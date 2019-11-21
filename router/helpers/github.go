@@ -47,7 +47,7 @@ func (c *Config) CreateRepositoryHelper(ctx context.Context, w http.ResponseWrit
 
 // TODO
 //
-func (c *Config) CreateFileHelper(ctx context.Context, w http.ResponseWriter, repoName, branchName, fileName string, contents []byte) {
+func (c *Config) CreateGitFile(ctx context.Context, w http.ResponseWriter, repoName, branchName, fileName string, contents []byte) {
 	fileOptions := github.RepositoryContentFileOptions{
 		Message: utils.String("Uploading file"),
 		Content: contents,
@@ -139,7 +139,7 @@ func (c *Config) UpdateFileHelper(ctx context.Context, w http.ResponseWriter, re
 
 // TODO
 //
-func (c *Config) CreateBranchHelper(ctx context.Context, w http.ResponseWriter, repoName, branchName string) {
+func (c *Config) CreateGitBranch(ctx context.Context, w http.ResponseWriter, repoName, branchName string) {
 	masterBranch, _, err := c.GAL.Git.GetRef(ctx, consts.Z3E2C, repoName, fmt.Sprintf("refs/heads/%s", consts.MASTER))
 	if err != nil {
 		w.WriteHeader(status.Status(status.InternalServerError))

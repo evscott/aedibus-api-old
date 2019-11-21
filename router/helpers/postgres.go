@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/evscott/z3-e2c-api/shared/utils"
 	"io"
 	"net/http"
 
@@ -69,7 +70,7 @@ func (c *Config) ReceiveFileContentsHelper(w http.ResponseWriter, r *http.Reques
 
 // TODO
 //
-func (c *Config) UpdateAssignmentHelper(ctx context.Context, w http.ResponseWriter, repo, branch, fileName string) {
+func (c *Config) UpdateAssignmentBlob(ctx context.Context, w http.ResponseWriter, repo, branch string) {
 	masterBranch, _, err := c.GAL.Git.GetRef(ctx, consts.Z3E2C, repo, fmt.Sprintf("refs/heads/%s", consts.MASTER))
 	if err != nil {
 		w.WriteHeader(status.Status(status.InternalServerError))
@@ -83,4 +84,40 @@ func (c *Config) UpdateAssignmentHelper(ctx context.Context, w http.ResponseWrit
 	if err := c.DAL.Provider.UpdateAssignment(ctx, assignment); err != nil {
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
+}
+
+// TODO
+//
+func (c *Config) CreateDbFile(ctx context.Context, w http.ResponseWriter, branchName, fileName string) {
+	submission := &models.Submission{
+		Branch: &branchName,
+	}
+	if err := c.DAL.Provider.GetSubmissionByBranchAndRepo(ctx, submission); err != nil {
+		c.Logger.ConfigError(err)
+	}
+}
+
+// TODO
+//
+func (c *Config) CreateDbSubmission(ctx context.Context, assignment, branchName string) {
+	submission := &models.Submission{
+		Assignment: &assignment,
+		Branch:     &branchName,
+	}
+	if err := c.DAL.Provider.CreateSubmission(ctx, submission); err != nil {
+		c.Logger.ConfigError(err)
+	}
+}
+
+// TODO
+//
+func (c *Config) GetSubmissionByBranchAndRepo(ctx context.Context, w http.ResponseWriter, branchName string) *models.Submission {
+	submission := &models.Submission{
+		Assignment: utils.String("test"),
+		Branch:     utils.String("test-branch"),
+	}
+	if err := c.DAL.Provider.GetSubmissionByBranchAndRepo(ctx, submission); err != nil {
+		c.Logger.ConfigError(err)
+	}
+	return submission
 }

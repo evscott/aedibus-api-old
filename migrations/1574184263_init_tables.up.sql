@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS Submissions (
     PRIMARY KEY (id, assignment)
 );
 
-CREATE TABLE IF NOT EXISTS File (
+CREATE TABLE IF NOT EXISTS Files (
     submission_id uuid REFERENCES Submissions(id),
     file_name varchar(255) NOT NULL,
-    PRIMARY KEY (submissions_id, file_name)
+    PRIMARY KEY (submission_id, file_name)
 );
