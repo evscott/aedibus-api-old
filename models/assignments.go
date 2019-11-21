@@ -6,12 +6,13 @@ type Assignment struct {
 	BlobShah *string `pg:"blob_shah"`
 }
 
-type ReqGetAssignment struct {
+type ReqGetFile struct {
 	Name   *string `json:"name"`
 	Branch *string `json:"branch"`
+	Path   *string `json:"path"`
 }
 
-type ResGetAssignment struct {
+type ResGetFile struct {
 	Name    *string `json:"name"`
 	Branch  *string `json:"branch"`
 	Content *string `json:"content"`

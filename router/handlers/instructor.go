@@ -18,7 +18,7 @@ func (c *Config) CreateComment(w http.ResponseWriter, r *http.Request) {
 	req := &models.ReqCreateComment{}
 	marsh.UnmarshalRequest(req, w, r)
 
-	c.helpers.CreateComment(ctx, w, *req.Path, *req.Body, *req.CommitID, *req.RepoName, *req.Position)
+	c.helpers.CreateCommentHelper(ctx, w, *req.Path, *req.Body, *req.CommitID, *req.RepoName, *req.Position)
 }
 
 // TODO
@@ -30,10 +30,10 @@ func (c *Config) UpdateFile(w http.ResponseWriter, r *http.Request) {
 	repoName := r.FormValue("repoName")
 	branchName := r.FormValue("branchName")
 	fileName := r.FormValue("fileName")
-	contents := c.helpers.ReceiveFileContents(w, r, fileName)
+	contents := c.helpers.ReceiveFileContentsHelper(w, r, fileName)
 
-	c.helpers.UpdateFile(ctx, w, repoName, branchName, fileName, contents)
-	c.helpers.UpdateAssignment(ctx, w, repoName, branchName)
+	c.helpers.UpdateFileHelper(ctx, w, repoName, branchName, fileName, contents)
+	c.helpers.UpdateAssignmentHelper(ctx, w, repoName, branchName)
 }
 
 // TODO
@@ -45,10 +45,10 @@ func (c *Config) UploadFile(w http.ResponseWriter, r *http.Request) {
 	repoName := r.FormValue("repoName")
 	branchName := r.FormValue("branchName")
 	fileName := r.FormValue("fileName")
-	contents := c.helpers.ReceiveFileContents(w, r, fileName)
+	contents := c.helpers.ReceiveFileContentsHelper(w, r, fileName)
 
-	c.helpers.CreateFile(ctx, w, repoName, branchName, fileName, contents)
-	c.helpers.UpdateAssignment(ctx, w, repoName, branchName)
+	c.helpers.CreateFileHelper(ctx, w, repoName, branchName, fileName, contents)
+	c.helpers.UpdateAssignmentHelper(ctx, w, repoName, branchName)
 }
 
 // TODO
@@ -60,8 +60,8 @@ func (c *Config) CreateAssignment(w http.ResponseWriter, r *http.Request) {
 	req := &models.ReqCreateRepo{}
 	marsh.UnmarshalRequest(req, w, r)
 
-	c.helpers.CreateRepository(ctx, w, *req.RepoName)
-	c.helpers.CreateAssignment(ctx, w, *req.RepoName, consts.MASTER)
+	c.helpers.CreateRepositoryHelper(ctx, w, *req.RepoName)
+	c.helpers.CreateAssignmentHelper(ctx, w, *req.RepoName, consts.MASTER)
 }
 
 // TODO
@@ -70,8 +70,20 @@ func (c *Config) CreateAssignment(w http.ResponseWriter, r *http.Request) {
 func (c *Config) GetReadme(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
-	req := &models.ReqGetAssignment{}
+	req := &models.ReqGetFile{}
 	marsh.UnmarshalRequest(req, w, r)
 
-	c.helpers.GetReadme(ctx, w, *req.Name, *req.Branch)
+	c.helpers.GetReadmeHelper(ctx, w, *req.Name, *req.Branch)
+}
+
+// TODO
+//
+//
+func (c *Config) GetFile(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+
+	req := &models.ReqGetFile{}
+	marsh.UnmarshalRequest(req, w, r)
+
+	c.helpers.GetFileHelper(ctx, w, *req.Name, *req.Branch, *req.Path)
 }

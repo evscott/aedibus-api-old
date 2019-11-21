@@ -33,6 +33,10 @@ func (c *Config) handleGeneralRoutes() {
 	c.Router.HandleFunc(Path(Github, File), c.Handlers.UploadFile).Methods(POST)
 	// Update File
 	c.Router.HandleFunc(Path(Github, File), c.Handlers.UpdateFile).Methods(PUT)
+	// Get file
+	c.Router.HandleFunc(Path(File), c.Handlers.GetFile).Methods(GET)
+	// Get Readme
+	c.Router.HandleFunc(Path(Readme), c.Handlers.GetReadme).Methods(GET)
 }
 
 func (c *Config) handleStudentRoutes() {
@@ -43,7 +47,6 @@ func (c *Config) handleStudentRoutes() {
 }
 
 func (c *Config) handleInstructorRoutes() {
-	c.Router.HandleFunc(Path(Readme), c.Handlers.GetReadme).Methods(GET)
 	// Create Readme
 	c.Router.HandleFunc(Path(Github, Repository), c.Handlers.CreateAssignment).Methods(POST)
 	// Create Comment on Readme

@@ -16,7 +16,7 @@ import (
 
 // TODO
 //
-func (c *Config) CreateComment(ctx context.Context, w http.ResponseWriter, path, body, commitID, repoName string, position int) {
+func (c *Config) CreateCommentHelper(ctx context.Context, w http.ResponseWriter, path, body, commitID, repoName string, position int) {
 	comment := github.PullRequestComment{
 		Path:     &path,
 		Body:     &body,
@@ -33,7 +33,7 @@ func (c *Config) CreateComment(ctx context.Context, w http.ResponseWriter, path,
 
 // TODO
 //
-func (c *Config) CreateAssignment(ctx context.Context, w http.ResponseWriter, repoName, branchName string) {
+func (c *Config) CreateAssignmentHelper(ctx context.Context, w http.ResponseWriter, repoName, branchName string) {
 	assignment := &models.Assignment{
 		Name:   &repoName,
 		Branch: &branchName,
@@ -48,7 +48,7 @@ func (c *Config) CreateAssignment(ctx context.Context, w http.ResponseWriter, re
 
 // TODO
 //
-func (c *Config) ReceiveFileContents(w http.ResponseWriter, r *http.Request, fileName string) []byte {
+func (c *Config) ReceiveFileContentsHelper(w http.ResponseWriter, r *http.Request, fileName string) []byte {
 	file, _, err := r.FormFile(fileName)
 	if err != nil {
 		w.WriteHeader(status.Status(status.InternalServerError))
@@ -69,7 +69,7 @@ func (c *Config) ReceiveFileContents(w http.ResponseWriter, r *http.Request, fil
 
 // TODO
 //
-func (c *Config) UpdateAssignment(ctx context.Context, w http.ResponseWriter, repo, branch string) {
+func (c *Config) UpdateAssignmentHelper(ctx context.Context, w http.ResponseWriter, repo, branch string) {
 	masterBranch, _, err := c.GAL.Git.GetRef(ctx, consts.Z3E2C, repo, fmt.Sprintf("refs/heads/%s", consts.MASTER))
 	if err != nil {
 		w.WriteHeader(status.Status(status.InternalServerError))
