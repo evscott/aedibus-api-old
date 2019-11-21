@@ -4,8 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/evscott/z3-e2c-api/dal/provider"
-	"log"
-
 	"github.com/evscott/z3-e2c-api/shared/constants"
 	"github.com/evscott/z3-e2c-api/shared/logger"
 	"github.com/go-pg/pg/v9"
@@ -13,6 +11,8 @@ import (
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
+	"log"
+	"strings"
 )
 
 type Info struct {
@@ -72,7 +72,7 @@ func (d *DAL) runMigrations() {
 	if err != nil {
 		d.logger.ConfigError(err)
 	}
-	if err := m.Up(); err != nil {
+	if err := m.Up(); err != nil && !strings.EqualFold(err.Error(), "no change") {
 		d.logger.ConfigError(err)
 	} else {
 		log.Printf("Successfully ran migrations")
