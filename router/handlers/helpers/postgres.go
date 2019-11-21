@@ -48,7 +48,7 @@ func (c *Config) CreateAssignment(ctx context.Context, w http.ResponseWriter, re
 
 // TODO
 //
-func (c *Config) GetFileContents(w http.ResponseWriter, r *http.Request, fileName string) []byte {
+func (c *Config) ReceiveFileContents(w http.ResponseWriter, r *http.Request, fileName string) []byte {
 	file, _, err := r.FormFile(fileName)
 	if err != nil {
 		w.WriteHeader(status.Status(status.InternalServerError))

@@ -12,6 +12,8 @@ const (
 	File        Resource = "/file"
 	PullRequest Resource = "/pull-request"
 	Comment     Resource = "/comment"
+
+	Readme Resource = "/readme"
 )
 
 /***** HTTP Methods *****/

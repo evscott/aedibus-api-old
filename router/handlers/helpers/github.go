@@ -3,6 +3,7 @@ package helpers
 import (
 	"context"
 	"fmt"
+	"github.com/evscott/z3-e2c-api/models"
 	"net/http"
 
 	consts "github.com/evscott/z3-e2c-api/shared/constants"
@@ -56,6 +57,29 @@ func (c *Config) CreateFile(ctx context.Context, w http.ResponseWriter, repoName
 		w.WriteHeader(status.Status(status.InternalServerError))
 		c.Logger.GalError(err)
 	}
+}
+
+func (c *Config) GetReadme(ctx context.Context, w http.ResponseWriter, repoName, branchName string) {
+	// Get blob sha of file from Github to be used as target of update
+	getOptions := github.RepositoryContentGetOptions{Ref: fmt.Sprintf("heads/%s", branchName)}
+	fileContent, _, err := c.GAL.Repositories.GetReadme(ctx, consts.Z3E2C, repoName, &getOptions)
+	if err != nil {
+		w.WriteHeader(status.Status(status.InternalServerError))
+		c.Logger.GalError(err)
+	}
+	content, err := fileContent.GetContent()
+	if err != nil {
+		w.WriteHeader(status.Status(status.InternalServerError))
+		c.Logger.GalError(err)
+	}
+
+	result := models.ResGetAssignment{
+		Name:    &repoName,
+		Branch:  &branchName,
+		Content: &content,
+	}
+
+	marsh.MarshalResponse(result, w)
 }
 
 // TODO
