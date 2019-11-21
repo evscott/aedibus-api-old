@@ -24,6 +24,7 @@ func Init(router *mux.Router, github *github.Client, dal *dal.DAL, logger *logge
 
 func (c *Config) handleGithubRoutes() {
 	c.handleGeneralRoutes()
+	c.handleStudentRoutes()
 	c.handleInstructorRoutes()
 }
 
@@ -32,15 +33,18 @@ func (c *Config) handleGeneralRoutes() {
 	c.Router.HandleFunc(Path(Github, File), c.Handlers.UploadAssignment).Methods(POST)
 	// Update File
 	c.Router.HandleFunc(Path(Github, File), c.Handlers.UpdateAssignment).Methods(PUT)
-	// Create Pull Request
+}
+
+func (c *Config) handleStudentRoutes() {
+	// Create Submission
+	c.Router.HandleFunc(Path(Github, Branch), c.Handlers.CreateSubmission).Methods(POST)
+	// Submit Assignment
 	c.Router.HandleFunc(Path(Github, PullRequest), c.Handlers.SubmitAssignment).Methods(POST)
 }
 
 func (c *Config) handleInstructorRoutes() {
-	// Create Repository
+	// Create Assignment
 	c.Router.HandleFunc(Path(Github, Repository), c.Handlers.CreateAssignment).Methods(POST)
-	// Create Branch
-	c.Router.HandleFunc(Path(Github, Branch), c.Handlers.CreateSubmission).Methods(POST)
-	// Create Comment on Pull Request
+	// Create Comment on Assignment
 	c.Router.HandleFunc(Path(Github, PullRequest, Comment), c.Handlers.CreateComment).Methods(POST)
 }
