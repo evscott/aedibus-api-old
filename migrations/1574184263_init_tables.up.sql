@@ -1,15 +1,12 @@
 CREATE TABLE IF NOT EXISTS Assignments (
-    RepoName varchar (255) PRIMARY KEY,
-    MasterBranch varchar (255) NOT NULL,
-    BlobShah varchar(40) NOT NULL,
-    LatestCommit varchar (40) NOT NULL
+    name varchar (255) PRIMARY KEY,
+    branch varchar (255) NOT NULL,
+    blob_shah varchar(40)
 );
 
 CREATE TABLE IF NOT EXISTS Submissions (
-    RepoName varchar (255) PRIMARY KEY REFERENCES Assignments(RepoName),
-    MasterBranch varchar (255) NOT NULL,
-    WorkingBranch varchar (255) NOT NULL,
-    LatestCommit varchar (40) NOT NULL,
-    Submitted bool DEFAULT FALSE,
-    Reviewed bool DEFAULT FALSE
+    assignment varchar (255) PRIMARY KEY REFERENCES Assignments(name),
+    branch varchar (255) NOT NULL,
+    submitted bool DEFAULT FALSE,
+    grade bool DEFAULT FALSE
 );

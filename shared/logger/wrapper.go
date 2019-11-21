@@ -33,3 +33,7 @@ func (l *StandardLogger) ConfigError(error error) {
 func (l *StandardLogger) GalError(error error) {
 	l.Errorf(galErrorMessage.message, error)
 }
+
+func (l *StandardLogger) DalError(error error) {
+	l.Errorf(galErrorMessage.message, error)
+}
