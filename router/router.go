@@ -29,18 +29,18 @@ func (c *Config) handleGithubRoutes() {
 
 func (c *Config) handleGeneralRoutes() {
 	// Upload File
-	c.Router.HandleFunc(Path(Github, File), c.Handlers.UploadFile).Methods(POST)
+	c.Router.HandleFunc(Path(Github, File), c.Handlers.UploadAssignment).Methods(POST)
 	// Update File
-	c.Router.HandleFunc(Path(Github, File), c.Handlers.UpdateFile).Methods(PUT)
+	c.Router.HandleFunc(Path(Github, File), c.Handlers.UpdateAssignment).Methods(PUT)
 	// Create Pull Request
-	c.Router.HandleFunc(Path(Github, PullRequest), c.Handlers.CreatePullRequest).Methods(POST)
+	c.Router.HandleFunc(Path(Github, PullRequest), c.Handlers.SubmitAssignment).Methods(POST)
 }
 
 func (c *Config) handleInstructorRoutes() {
 	// Create Repository
-	c.Router.HandleFunc(Path(Github, Repository), c.Handlers.CreateRepository).Methods(POST)
+	c.Router.HandleFunc(Path(Github, Repository), c.Handlers.CreateAssignment).Methods(POST)
 	// Create Branch
-	c.Router.HandleFunc(Path(Github, Branch), c.Handlers.CreateBranch).Methods(POST)
+	c.Router.HandleFunc(Path(Github, Branch), c.Handlers.CreateSubmission).Methods(POST)
 	// Create Comment on Pull Request
 	c.Router.HandleFunc(Path(Github, PullRequest, Comment), c.Handlers.CreateComment).Methods(POST)
 }
