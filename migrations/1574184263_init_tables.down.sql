@@ -1,1 +1,2 @@
-DROP TABLE IF EXISTS test_table;
+DROP TABLE IF EXISTS Assignments;
+DROP TABLE IF EXISTS Submissions;

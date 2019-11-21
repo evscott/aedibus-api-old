@@ -3,6 +3,7 @@ package dal
 import (
 	"database/sql"
 	"fmt"
+	"github.com/evscott/z3-e2c-api/dal/provider"
 	"log"
 
 	"github.com/evscott/z3-e2c-api/shared/constants"
@@ -24,14 +25,15 @@ type Info struct {
 }
 
 type DAL struct {
-	Log  *logger.StandardLogger
-	DB   *pg.DB
-	info *Info
+	Provider provider.Provider
+	logger   *logger.StandardLogger
+	client   *pg.DB
+	info     *Info
 }
 
-func NewDAL(log *logger.StandardLogger, host, port, user, password, name, migrations string) *DAL {
+func NewDAL(logger *logger.StandardLogger, host, port, user, password, name, migrations string) *DAL {
 	dal := &DAL{
-		Log: log,
+		logger: logger,
 		info: &Info{
 			Host:       host,
 			Port:       port,
@@ -44,45 +46,52 @@ func NewDAL(log *logger.StandardLogger, host, port, user, password, name, migrat
 
 	dal.runMigrations()
 	dal.setupGoPG()
+	dal.Provider = provider.Init(logger, dal.client)
 
 	return dal
+}
+
+func (d *DAL) Shutdown() {
+	if err := d.client.Close(); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func (d *DAL) runMigrations() {
 	dbInfo := fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", d.info.Host, d.info.User, d.info.Password, d.info.Name)
 	db, err := sql.Open(constants.DB_DRIVER, dbInfo)
 	if err != nil {
-		d.Log.ConfigError(err)
+		d.logger.ConfigError(err)
 	}
 
 	driver, err := postgres.WithInstance(db, &postgres.Config{})
 	if err != nil {
-		d.Log.ConfigError(err)
+		d.logger.ConfigError(err)
 	}
 	m, err := migrate.NewWithDatabaseInstance(d.info.Migrations, d.info.Name, driver)
 	if err != nil {
-		d.Log.ConfigError(err)
+		d.logger.ConfigError(err)
 	}
 	if err := m.Up(); err != nil {
-		d.Log.ConfigError(err)
+		d.logger.ConfigError(err)
 	} else {
 		log.Printf("Successfully ran migrations")
 	}
 
 	if err := db.Close(); err != nil {
-		d.Log.ConfigError(err)
+		d.logger.ConfigError(err)
 	}
 }
 
 func (d *DAL) setupGoPG() {
-	d.DB = pg.Connect(&pg.Options{
+	d.client = pg.Connect(&pg.Options{
 		Addr:     fmt.Sprintf("%s:%s", d.info.Host, d.info.Port),
 		User:     d.info.User,
 		Password: d.info.Password,
 		Database: d.info.Name,
 	})
 
-	if _, err := d.DB.Exec("SELECT 1"); err != nil {
-		d.Log.ConfigError(err)
+	if _, err := d.client.Exec("SELECT 1"); err != nil {
+		d.logger.ConfigError(err)
 	}
 }

@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"github.com/evscott/z3-e2c-api/shared"
 	"log"
 	"net/http"
 	"os"
@@ -10,14 +9,14 @@ import (
 	"syscall"
 	"time"
 
-	Routes "github.com/evscott/z3-e2c-api/routes"
+	Router "github.com/evscott/z3-e2c-api/router"
 	"github.com/gorilla/mux"
 )
 
 func main() {
 	ctx := context.Background()
-	conf := shared.GetConfig(ctx, mux.NewRouter())
-	Routes.Init(conf.Router, conf.GithubClient, conf.DAL, conf.Logger)
+	conf := GetConfig(ctx, mux.NewRouter())
+	Router.Init(conf.Router, conf.DAL, conf.GithubClient, conf.Logger)
 
 	// Start up
 	go func() {
@@ -45,10 +44,8 @@ func main() {
 		if err := srv.Shutdown(ctx); err != nil {
 			log.Fatal(err)
 		}
-		// Shutdown database client
-		if err := conf.DAL.DB.Close(); err != nil {
-			log.Fatal(err)
-		}
+
+		conf.DAL.Shutdown()
 
 		os.Exit(0)
 	}(conf.Server)
