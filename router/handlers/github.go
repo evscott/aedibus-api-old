@@ -4,15 +4,15 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/evscott/z3-e2c-api/dal"
-	status "github.com/evscott/z3-e2c-api/shared/http-codes"
-	"github.com/evscott/z3-e2c-api/shared/marsh"
 	"io"
 	"net/http"
 
+	"github.com/evscott/z3-e2c-api/dal"
 	"github.com/evscott/z3-e2c-api/models"
 	consts "github.com/evscott/z3-e2c-api/shared/constants"
+	status "github.com/evscott/z3-e2c-api/shared/http-codes"
 	"github.com/evscott/z3-e2c-api/shared/logger"
+	"github.com/evscott/z3-e2c-api/shared/marsh"
 	"github.com/evscott/z3-e2c-api/shared/utils"
 	"github.com/google/go-github/github"
 )
@@ -36,7 +36,7 @@ func (c *Config) CreateComment(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(status.Status(status.OK))
 }
 
-// CreatePullRequest TODO
+// TODO
 //
 //
 func (c *Config) CreatePullRequest(w http.ResponseWriter, r *http.Request) {
@@ -49,41 +49,41 @@ func (c *Config) CreatePullRequest(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(status.Status(status.OK))
 }
 
-// UpdateFile
+// TODO
 //
 //
 func (c *Config) UpdateFile(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
-	repo := r.FormValue("repo")
-	branch := r.FormValue("branch")
+	repoName := r.FormValue("repoName")
+	branchName := r.FormValue("branchName")
 	fileName := r.FormValue("fileName")
 	contents := c.getFileContents(w, r, fileName)
 
-	c.updateFile(ctx, w, repo, branch, fileName, contents)
-	c.updateAssignment(ctx, w, repo)
+	c.updateFile(ctx, w, repoName, branchName, fileName, contents)
+	c.updateAssignment(ctx, w, repoName, branchName)
 
 	w.WriteHeader(status.Status(status.OK))
 }
 
-// UploadFile TODO
+// TODO
 //
-//
+//abc6
 func (c *Config) UploadFile(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
-	repoName := r.FormValue("repo")
-	branchName := r.FormValue("branch")
+	repoName := r.FormValue("repoName")
+	branchName := r.FormValue("branchName")
 	fileName := r.FormValue("fileName")
 	contents := c.getFileContents(w, r, fileName)
 
 	c.createGithubFile(ctx, w, repoName, branchName, fileName, contents)
-	c.updateAssignment(ctx, w, repoName)
+	c.updateAssignment(ctx, w, repoName, branchName)
 
 	w.WriteHeader(status.Status(status.OK))
 }
 
-// CreateRepository TODO
+// TODO
 //
 //
 func (c *Config) CreateRepository(w http.ResponseWriter, r *http.Request) {
@@ -98,7 +98,7 @@ func (c *Config) CreateRepository(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(status.Status(status.OK))
 }
 
-// CreateBranch TODO
+// TODO
 //
 //
 func (c *Config) CreateBranch(w http.ResponseWriter, r *http.Request) {
@@ -111,14 +111,18 @@ func (c *Config) CreateBranch(w http.ResponseWriter, r *http.Request) {
 	c.createBranch(ctx, w, *req.RepoName, *req.BranchName)
 }
 
-// _    _   ______   _        _____    ______   _____
-// | |  | | |  ____| | |      |  __ \  |  ____| |  __ \
-// | |__| | | |__    | |      | |__) | | |__    | |__) |
-// |  __  | |  __|   | |      |  ___/  |  __|   |  _  /
-// | |  | | | |____  | |____  | |      | |____  | | \ \
-// |_|  |_| |______| |______| |_|      |______| |_|  \_\
+// =================================================================
+//   _    _   ______   _        _____    ______   _____     _____
+//  | |  | | |  ____| | |      |  __ \  |  ____| |  __ \   / ____|
+//  | |__| | | |__    | |      | |__) | | |__    | |__) | | (___
+//  |  __  | |  __|   | |      |  ___/  |  __|   |  _  /   \___ \
+//  | |  | | | |____  | |____  | |      | |____  | | \ \   ____) |
+//  |_|  |_| |______| |______| |_|      |______| |_|  \_\ |_____/
 //
+// =================================================================
 
+// TODO
+//
 func (c *Config) createComment(ctx context.Context, w http.ResponseWriter, path, body, commitID, repoName string, position int) {
 	comment := github.PullRequestComment{
 		Path:     &path,
@@ -134,6 +138,8 @@ func (c *Config) createComment(ctx context.Context, w http.ResponseWriter, path,
 	}
 }
 
+// TODO
+//
 func (c *Config) createPullRequest(ctx context.Context, w http.ResponseWriter, title, head, body, repoName string) {
 	pullRequest := github.NewPullRequest{
 		Title:               &title,
@@ -151,6 +157,8 @@ func (c *Config) createPullRequest(ctx context.Context, w http.ResponseWriter, t
 	}
 }
 
+// TODO
+//
 func (c *Config) createRepository(ctx context.Context, w http.ResponseWriter, repoName string) {
 	repo := github.Repository{
 		Name:          &repoName,
@@ -162,10 +170,12 @@ func (c *Config) createRepository(ctx context.Context, w http.ResponseWriter, re
 	}
 }
 
+// TODO
+//
 func (c *Config) createAssignment(ctx context.Context, w http.ResponseWriter, repoName, branchName string) {
 	assignment := &models.Assignment{
-		Name:   repoName,
-		Branch: branchName,
+		Name:   &repoName,
+		Branch: &branchName,
 	}
 	if err := c.DAL.Provider.CreateAssignment(ctx, assignment); err != nil {
 		w.WriteHeader(status.Status(status.InternalServerError))
@@ -175,6 +185,8 @@ func (c *Config) createAssignment(ctx context.Context, w http.ResponseWriter, re
 	}
 }
 
+// TODO
+//
 func (c *Config) getFileContents(w http.ResponseWriter, r *http.Request, fileName string) []byte {
 	file, _, err := r.FormFile(fileName)
 	if err != nil {
@@ -194,6 +206,8 @@ func (c *Config) getFileContents(w http.ResponseWriter, r *http.Request, fileNam
 	return buffer.Bytes()
 }
 
+// TODO
+//
 func (c *Config) createGithubFile(ctx context.Context, w http.ResponseWriter, repoName, branchName, fileName string, contents []byte) {
 	fileOptions := github.RepositoryContentFileOptions{
 		Message: utils.String("Uploading file"),
@@ -206,6 +220,8 @@ func (c *Config) createGithubFile(ctx context.Context, w http.ResponseWriter, re
 	}
 }
 
+// TODO
+//
 func (c *Config) updateFile(ctx context.Context, w http.ResponseWriter, repo, branch, fileName string, contents []byte) {
 	// Get blob sha of file from Github to be used as target of update
 	var sha string
@@ -228,23 +244,28 @@ func (c *Config) updateFile(ctx context.Context, w http.ResponseWriter, repo, br
 		w.WriteHeader(status.Status(status.InternalServerError))
 		c.Logger.GalError(err)
 	}
-} // Create repository
+}
 
-func (c *Config) updateAssignment(ctx context.Context, w http.ResponseWriter, repo string) {
+// TODO
+//
+func (c *Config) updateAssignment(ctx context.Context, w http.ResponseWriter, repo, branch string) {
 	masterBranch, _, err := c.GAL.Git.GetRef(ctx, consts.Z3E2C, repo, fmt.Sprintf("refs/heads/%s", consts.MASTER))
 	if err != nil {
 		w.WriteHeader(status.Status(status.InternalServerError))
 		c.Logger.GalError(err)
 	}
 	assignment := &models.Assignment{
-		Name:     repo,
-		BlobShah: *masterBranch.Object.SHA,
+		Name:     &repo,
+		Branch:   &branch,
+		BlobShah: masterBranch.Object.SHA,
 	}
 	if err := c.DAL.Provider.UpdateAssignment(ctx, assignment); err != nil {
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 }
 
+// TODO
+//
 func (c *Config) createBranch(ctx context.Context, w http.ResponseWriter, repoName, branchName string) {
 	masterBranch, _, err := c.GAL.Git.GetRef(ctx, consts.Z3E2C, repoName, fmt.Sprintf("refs/heads/%s", consts.MASTER))
 	if err != nil {
