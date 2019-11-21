@@ -5,6 +5,7 @@ services:
   db:
     container_name: z3-e2c-db
     image: postgres
+    restart: always
     hostname: db
     environment:
       GET_HOST_FROM: dns
@@ -15,6 +16,8 @@ services:
       - 5432:5432
     networks:
       - z3-e2c-net
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
 
   z3-e2c-api:
     container_name: z3-e2c-api
