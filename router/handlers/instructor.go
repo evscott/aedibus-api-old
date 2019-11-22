@@ -106,7 +106,10 @@ func (c *Config) GetFileContents(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
 	req := &models.ReqGetFile{}
-	marsh.UnmarshalRequest(req, w, r)
+	if err := marsh.UnmarshalRequest(req, w, r); err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
 
 	res, err := c.helpers.GH.GetFileContents(ctx, req.FileName, req.SubmissionName)
 	if err != nil {
@@ -114,5 +117,8 @@ func (c *Config) GetFileContents(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	marsh.MarshalResponse(res, w)
+	if err := marsh.MarshalResponse(res, w); err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
 }

@@ -2,32 +2,20 @@ package marsh
 
 import (
 	"encoding/json"
-	http2 "github.com/evscott/z3-e2c-api/shared/http-codes"
 	"io/ioutil"
-	"log"
 	"net/http"
 )
 
-func UnmarshalRequest(body interface{}, w http.ResponseWriter, r *http.Request) {
+func UnmarshalRequest(body interface{}, w http.ResponseWriter, r *http.Request) error {
 	buffer, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
-		http.Error(w, err.Error(), http2.Status(http2.InternalServerError))
-		log.Fatal(err)
+		return err
 	}
-
-	err = json.Unmarshal(buffer, body)
-	if err != nil {
-		http.Error(w, err.Error(), http2.Status(http2.InternalServerError))
-		log.Fatal(err)
-	}
+	return json.Unmarshal(buffer, body)
 }
 
-func MarshalResponse(body interface{}, w http.ResponseWriter) {
+func MarshalResponse(body interface{}, w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
-	err := json.NewEncoder(w).Encode(body)
-	if err != nil {
-		http.Error(w, err.Error(), http2.Status(http2.InternalServerError))
-		log.Fatal(err)
-	}
+	return json.NewEncoder(w).Encode(body)
 }

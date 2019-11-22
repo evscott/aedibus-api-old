@@ -35,6 +35,7 @@ func (c *Config) generalRoutes() {
 func (c *Config) studentRoutes() {
 	c.Router.HandleFunc(Path(Submission), c.Handlers.CreateSubmission).Methods(POST)
 	c.Router.HandleFunc(Path(Submission, File), c.Handlers.CreateSubmissionFile).Methods(POST)
+	c.Router.HandleFunc(Path(Submit, Assignment), c.Handlers.SubmitAssignment).Methods(POST)
 }
 
 func (c *Config) instructorRoutes() {

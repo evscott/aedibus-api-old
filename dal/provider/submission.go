@@ -15,3 +15,12 @@ func (c *Config) GetSubmissionByBranchAndRepo(ctx context.Context, submission *m
 		Where("submission_name = ?", submission.AssignmentName).
 		Select()
 }
+
+func (c *Config) MarkSubmitted(ctx context.Context, submission *models.Submission) error {
+	_, err := c.db.
+		Model(submission).
+		WherePK().
+		Set("submitted = ?", true).
+		Update()
+	return err
+}
