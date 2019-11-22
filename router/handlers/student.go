@@ -17,7 +17,10 @@ func (c *Config) CreateSubmission(w http.ResponseWriter, r *http.Request) {
 
 	// Unmarshal create reference request
 	req := &models.ReqCreateSubmission{}
-	marsh.UnmarshalRequest(req, w, r)
+	if err := marsh.UnmarshalRequest(req, w, r); err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
 
 	if err := c.helpers.GH.CreateSubmission(ctx, req.Name, req.AssignmentName); err != nil {
 		c.logger.Error(err)
@@ -28,8 +31,6 @@ func (c *Config) CreateSubmission(w http.ResponseWriter, r *http.Request) {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
-
-	w.WriteHeader(status.Status(status.OK))
 }
 
 // TODO
@@ -64,16 +65,27 @@ func (c *Config) CreateSubmissionFile(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	submission, err := c.helpers.DB.GetSubmissionByNameAndAssignment(ctx, assignmentName, submissionName)
+	if err := c.helpers.DB.CreateFile(ctx, fileName, assignmentName, submissionName); err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+}
+
+// TODO
+//
+func (c *Config) SubmitAssignment(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+
+	req := &models.ReqPullRequest{}
+	if err := marsh.UnmarshalRequest(req, w, r); err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	_, err := c.helpers.GH.CreatePullRequest(ctx, req.SubmissionName, req.AssignmentName, req.SubmissionName, req.Body)
 	if err != nil {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	if err := c.helpers.DB.CreateFile(ctx, fileName, submission.Name); err != nil {
-		c.logger.Error(err)
-		w.WriteHeader(status.Status(status.InternalServerError))
-	}
-
-	w.WriteHeader(status.Status(status.OK))
 }

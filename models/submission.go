@@ -11,3 +11,9 @@ type ReqCreateSubmission struct {
 	Name           string `json:"submissionName"`
 	AssignmentName string `json:"assignmentName"`
 }
+
+type ReqPullRequest struct {
+	SubmissionName string `json:"submissionName"`
+	AssignmentName string `json:"assignmentName"`
+	Body           string `json:"body"`
+}

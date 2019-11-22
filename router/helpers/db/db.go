@@ -75,10 +75,11 @@ func (c *Config) UpdateAssignmentBlob(ctx context.Context, assignmentName, blobS
 
 // TODO
 //
-func (c *Config) CreateFile(ctx context.Context, fileName, submissionName string) error {
+func (c *Config) CreateFile(ctx context.Context, fileName, assignmentName, submissionName string) error {
 	file := &models.File{
 		Name:           fileName,
-		AssignmentName: submissionName,
+		AssignmentName: assignmentName,
+		SubmissionName: submissionName,
 	}
 	return c.dal.Provider.CreateFile(ctx, file)
 }
