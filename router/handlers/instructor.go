@@ -29,7 +29,7 @@ func (c *Config) CreateAssignment(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(status.Status(status.OK))
 }
 
-// TODO
+// TODOName
 //
 //
 func (c *Config) CreateAssignmentFile(w http.ResponseWriter, r *http.Request) {
@@ -39,14 +39,13 @@ func (c *Config) CreateAssignmentFile(w http.ResponseWriter, r *http.Request) {
 	submissionName := r.FormValue("submissionName")
 	fileName := r.FormValue("fileName")
 
-	contents, err := c.helpers.DB.ReceiveFileContentsHelper(w, r, fileName)
+	contents, err := c.helpers.DB.GetFileFromForm(w, r, fileName)
 	if err != nil {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	c.logger.Printf("Creating git file, %s %s %s\n", assignmentName, submissionName, fileName)
-	if err := c.helpers.GH.CreateGitFile(ctx, assignmentName, submissionName, fileName, contents); err != nil {
+	if err := c.helpers.GH.CreateFile(ctx, assignmentName, submissionName, fileName, contents); err != nil {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
@@ -75,13 +74,13 @@ func (c *Config) UpdateAssignmentFile(w http.ResponseWriter, r *http.Request) {
 	submissionName := r.FormValue("submissionName")
 	fileName := r.FormValue("fileName")
 
-	contents, err := c.helpers.DB.ReceiveFileContentsHelper(w, r, fileName)
+	contents, err := c.helpers.DB.GetFileFromForm(w, r, fileName)
 	if err != nil {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	if err := c.helpers.GH.UpdateFileHelper(ctx, assignmentName, submissionName, fileName, contents); err != nil {
+	if err := c.helpers.GH.UpdateFile(ctx, assignmentName, submissionName, fileName, contents); err != nil {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
@@ -109,7 +108,7 @@ func (c *Config) GetFileContents(w http.ResponseWriter, r *http.Request) {
 	req := &models.ReqGetFile{}
 	marsh.UnmarshalRequest(req, w, r)
 
-	res, err := c.helpers.GH.GetFileContentsHelper(ctx, req.Name, req.SubmissionName)
+	res, err := c.helpers.GH.GetFileContents(ctx, req.FileName, req.SubmissionName)
 	if err != nil {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))

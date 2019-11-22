@@ -19,12 +19,12 @@ func (c *Config) CreateSubmission(w http.ResponseWriter, r *http.Request) {
 	req := &models.ReqCreateSubmission{}
 	marsh.UnmarshalRequest(req, w, r)
 
-	if err := c.helpers.GH.CreateGitBranch(ctx, req.Name, req.AssignmentName); err != nil {
+	if err := c.helpers.GH.CreateSubmission(ctx, req.Name, req.AssignmentName); err != nil {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	if err := c.helpers.DB.CreateDbSubmission(ctx, req.Name, req.AssignmentName); err != nil {
+	if err := c.helpers.DB.CreateSubmission(ctx, req.Name, req.AssignmentName); err != nil {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
@@ -42,13 +42,13 @@ func (c *Config) CreateSubmissionFile(w http.ResponseWriter, r *http.Request) {
 	submissionName := r.FormValue("submissionName")
 	fileName := r.FormValue("fileName")
 
-	contents, err := c.helpers.DB.ReceiveFileContentsHelper(w, r, fileName)
+	contents, err := c.helpers.DB.GetFileFromForm(w, r, fileName)
 	if err != nil {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	if err := c.helpers.GH.CreateGitFile(ctx, assignmentName, submissionName, fileName, contents); err != nil {
+	if err := c.helpers.GH.CreateFile(ctx, assignmentName, submissionName, fileName, contents); err != nil {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
@@ -64,13 +64,13 @@ func (c *Config) CreateSubmissionFile(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	submission, err := c.helpers.DB.GetSubmissionByBranchAndRepo(ctx, assignmentName, submissionName)
+	submission, err := c.helpers.DB.GetSubmissionByNameAndAssignment(ctx, assignmentName, submissionName)
 	if err != nil {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	if err := c.helpers.DB.CreateDbFile(ctx, fileName, submission.Name); err != nil {
+	if err := c.helpers.DB.CreateFile(ctx, fileName, submission.Name); err != nil {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}

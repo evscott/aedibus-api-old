@@ -18,7 +18,7 @@ func (c *Config) GetReadme(w http.ResponseWriter, r *http.Request) {
 	req := &models.ReqGetFile{}
 	marsh.UnmarshalRequest(req, w, r)
 
-	README, err := c.helpers.GH.GetReadmeHelper(ctx, req.Name, req.SubmissionName)
+	README, err := c.helpers.GH.GetReadme(ctx, req.FileName, req.SubmissionName)
 	if err != nil {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))

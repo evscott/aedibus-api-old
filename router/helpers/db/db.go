@@ -22,7 +22,7 @@ func Init(dal *dal.DAL) *Config {
 
 // TODO
 //
-func (c *Config) GetAssignmentByName(ctx context.Context, name string) (*models.Assignment, error) {
+func (c *Config) GetAssignment(ctx context.Context, name string) (*models.Assignment, error) {
 	assignment := &models.Assignment{
 		Name: name,
 	}
@@ -47,7 +47,7 @@ func (c *Config) CreateAssignment(ctx context.Context, assignmentName string) er
 
 // TODO
 //
-func (c *Config) ReceiveFileContentsHelper(w http.ResponseWriter, r *http.Request, fileName string) ([]byte, error) {
+func (c *Config) GetFileFromForm(w http.ResponseWriter, r *http.Request, fileName string) ([]byte, error) {
 	file, _, err := r.FormFile(fileName)
 	if err != nil {
 		return nil, err
@@ -75,7 +75,7 @@ func (c *Config) UpdateAssignmentBlob(ctx context.Context, assignmentName, blobS
 
 // TODO
 //
-func (c *Config) CreateDbFile(ctx context.Context, fileName, submissionName string) error {
+func (c *Config) CreateFile(ctx context.Context, fileName, submissionName string) error {
 	file := &models.File{
 		Name:           fileName,
 		AssignmentName: submissionName,
@@ -85,7 +85,7 @@ func (c *Config) CreateDbFile(ctx context.Context, fileName, submissionName stri
 
 // TODO
 //
-func (c *Config) CreateDbSubmission(ctx context.Context, submissionName, assignmentName string) error {
+func (c *Config) CreateSubmission(ctx context.Context, submissionName, assignmentName string) error {
 	submission := &models.Submission{
 		Name:           submissionName,
 		AssignmentName: assignmentName,
@@ -95,7 +95,7 @@ func (c *Config) CreateDbSubmission(ctx context.Context, submissionName, assignm
 
 // TODO
 //
-func (c *Config) GetSubmissionByBranchAndRepo(ctx context.Context, submissionName, assignmentName string) (*models.Submission, error) {
+func (c *Config) GetSubmissionByNameAndAssignment(ctx context.Context, submissionName, assignmentName string) (*models.Submission, error) {
 	submission := &models.Submission{
 		Name:           submissionName,
 		AssignmentName: assignmentName,

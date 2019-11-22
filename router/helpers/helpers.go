@@ -28,19 +28,19 @@ type PostgresHelpers interface {
 	CreateAssignmentHelper(ctx context.Context, assignmentName string) error
 	ReceiveFileContentsHelper(w http.ResponseWriter, r *http.Request, fileName string) ([]byte, error)
 	UpdateAssignmentBlob(ctx context.Context, assignmentName, blobSHA string) error
-	CreateDbFile(ctx context.Context, fileName, submissionName string) error
-	CreateDbSubmission(ctx context.Context, submissionName, assignmentName string) error
-	GetSubmissionByBranchAndRepo(ctx context.Context, submissionName, assignmentName string)
+	CreateFile(ctx context.Context, fileName, submissionName string) error
+	CreateSubmission(ctx context.Context, submissionName, assignmentName string) error
+	GetSubmissionByNameAndAssignment(ctx context.Context, submissionName, assignmentName string)
 }
 
 type GithubHelpers interface {
-	CreateCommentHelper(ctx context.Context, fileName, assignmentName, commitID, body string, position int) (*github.PullRequestComment, error)
-	CreatePullRequestHelper(ctx context.Context, submissionName, assignmentName, title, body string) (*github.PullRequest, error)
+	CreateComment(ctx context.Context, fileName, assignmentName, commitID, body string, position int) (*github.PullRequestComment, error)
+	CreatePullRequest(ctx context.Context, submissionName, assignmentName, title, body string) (*github.PullRequest, error)
 	CreateRepository(ctx context.Context, assignmentName string) error
-	CreateGitFile(ctx context.Context, assignmentName, submissionName, fileName string, contents []byte) error
-	GetReadmeHelper(ctx context.Context, assignmentName, submissionName string) (*models.ResGetFile, error)
-	GetFileContentsHelper(ctx context.Context, assignmentName, submissionName string) (*models.ResGetFile, error)
-	UpdateFileHelper(ctx context.Context, assignmentName, submissionName, fileName string, newContents []byte) error
-	CreateGitBranch(ctx context.Context, assignmentName, submissionName string) error
+	CreateFile(ctx context.Context, assignmentName, submissionName, fileName string, contents []byte) error
+	GetReadme(ctx context.Context, assignmentName, submissionName string) (*models.ResGetFile, error)
+	GetFileContents(ctx context.Context, assignmentName, submissionName string) (*models.ResGetFile, error)
+	UpdateFile(ctx context.Context, assignmentName, submissionName, fileName string, newContents []byte) error
+	CreateSubmission(ctx context.Context, assignmentName, submissionName string) error
 	GetMasterBlobSha(ctx context.Context, assignmentName string) (*string, error)
 }
