@@ -2,10 +2,10 @@ package handlers
 
 import (
 	"context"
+	status "github.com/evscott/z3-e2c-api/shared/http-codes"
 	"net/http"
 
 	"github.com/evscott/z3-e2c-api/models"
-	consts "github.com/evscott/z3-e2c-api/shared/constants"
 	"github.com/evscott/z3-e2c-api/shared/marsh"
 )
 
@@ -15,11 +15,18 @@ import (
 func (c *Config) CreateAssignment(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
-	req := &models.ReqCreateRepo{}
+	req := &models.ReqCreateAssignment{}
 	marsh.UnmarshalRequest(req, w, r)
 
-	c.helpers.CreateRepositoryHelper(ctx, w, *req.RepoName)
-	c.helpers.CreateAssignmentHelper(ctx, w, *req.RepoName, consts.MASTER)
+	if err := c.helpers.GH.CreateRepository(ctx, req.Name); err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+	if err := c.helpers.DB.CreateAssignment(ctx, req.Name); err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+	w.WriteHeader(status.Status(status.OK))
 }
 
 // TODO
@@ -28,14 +35,34 @@ func (c *Config) CreateAssignment(w http.ResponseWriter, r *http.Request) {
 func (c *Config) CreateAssignmentFile(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
-	repoName := r.FormValue("repoName")
-	branchName := r.FormValue("branchName")
+	assignmentName := r.FormValue("assignmentName")
+	submissionName := r.FormValue("submissionName")
 	fileName := r.FormValue("fileName")
-	contents := c.helpers.ReceiveFileContentsHelper(w, r, fileName)
 
-	c.helpers.CreateGitFile(ctx, w, repoName, branchName, fileName, contents)
-	c.helpers.UpdateAssignmentBlob(ctx, w, repoName, branchName)
-	// TODO create db file
+	contents, err := c.helpers.DB.ReceiveFileContentsHelper(w, r, fileName)
+	if err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	c.logger.Printf("Creating git file, %s %s %s\n", assignmentName, submissionName, fileName)
+	if err := c.helpers.GH.CreateGitFile(ctx, assignmentName, submissionName, fileName, contents); err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	blobSHA, err := c.helpers.GH.GetMasterBlobSha(ctx, assignmentName)
+	if err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	if err := c.helpers.DB.UpdateAssignmentBlob(ctx, assignmentName, *blobSHA); err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	w.WriteHeader(status.Status(status.OK))
 }
 
 // TODO
@@ -44,14 +71,33 @@ func (c *Config) CreateAssignmentFile(w http.ResponseWriter, r *http.Request) {
 func (c *Config) UpdateAssignmentFile(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
-	repoName := r.FormValue("repoName")
-	branchName := r.FormValue("branchName")
+	assignmentName := r.FormValue("assignmentName")
+	submissionName := r.FormValue("submissionName")
 	fileName := r.FormValue("fileName")
-	contents := c.helpers.ReceiveFileContentsHelper(w, r, fileName)
 
-	c.helpers.UpdateFileHelper(ctx, w, repoName, branchName, fileName, contents)
-	c.helpers.UpdateAssignmentBlob(ctx, w, repoName, branchName)
-	// TODO update db file
+	contents, err := c.helpers.DB.ReceiveFileContentsHelper(w, r, fileName)
+	if err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	if err := c.helpers.GH.UpdateFileHelper(ctx, assignmentName, submissionName, fileName, contents); err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	blobSHA, err := c.helpers.GH.GetMasterBlobSha(ctx, assignmentName)
+	if err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	if err := c.helpers.DB.UpdateAssignmentBlob(ctx, assignmentName, *blobSHA); err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	w.WriteHeader(status.Status(status.OK))
 }
 
 // TODO
@@ -63,17 +109,11 @@ func (c *Config) GetFileContents(w http.ResponseWriter, r *http.Request) {
 	req := &models.ReqGetFile{}
 	marsh.UnmarshalRequest(req, w, r)
 
-	c.helpers.GetFileContentsHelper(ctx, w, *req.Name, *req.Branch, *req.Path)
-}
+	res, err := c.helpers.GH.GetFileContentsHelper(ctx, req.Name, req.SubmissionName)
+	if err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
 
-//  TODO
-//
-//
-func (c *Config) CreateComment(w http.ResponseWriter, r *http.Request) {
-	ctx := context.Background()
-
-	req := &models.ReqCreateComment{}
-	marsh.UnmarshalRequest(req, w, r)
-
-	c.helpers.CreateCommentHelper(ctx, w, *req.Path, *req.Body, *req.CommitID, *req.RepoName, *req.Position)
+	marsh.MarshalResponse(res, w)
 }

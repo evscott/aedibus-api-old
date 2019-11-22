@@ -11,6 +11,7 @@ func (c *Config) CreateSubmission(ctx context.Context, submission *models.Submis
 
 func (c *Config) GetSubmissionByBranchAndRepo(ctx context.Context, submission *models.Submission) error {
 	return c.db.Model(submission).
-		Where("branch = ?", *submission.Branch).
+		Where("name = ?", submission.Name).
+		Where("submission_name = ?", submission.AssignmentName).
 		Select()
 }

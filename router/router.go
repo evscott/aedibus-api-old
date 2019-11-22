@@ -23,21 +23,21 @@ func Init(router *mux.Router, dal *dal.DAL, github *github.Client, logger *logge
 }
 
 func (c *Config) initRoutes() {
-	c.initGeneralRoutes()
-	c.initStudentRoutes()
-	c.initInstructorRoutes()
+	c.generalRoutes()
+	c.studentRoutes()
+	c.instructorRoutes()
 }
 
-func (c *Config) initGeneralRoutes() {
+func (c *Config) generalRoutes() {
 	c.Router.HandleFunc(Path(Readme), c.Handlers.GetReadme).Methods(GET)
 }
 
-func (c *Config) initStudentRoutes() {
+func (c *Config) studentRoutes() {
 	c.Router.HandleFunc(Path(Submission), c.Handlers.CreateSubmission).Methods(POST)
-	c.Router.HandleFunc(Path(Submission, Submit), c.Handlers.CreateSubmission).Methods(POST)
+	c.Router.HandleFunc(Path(Submission, File), c.Handlers.CreateSubmissionFile).Methods(POST)
 }
 
-func (c *Config) initInstructorRoutes() {
+func (c *Config) instructorRoutes() {
 	c.Router.HandleFunc(Path(Assignment), c.Handlers.CreateAssignment).Methods(POST)
 	c.Router.HandleFunc(Path(Assignment, File), c.Handlers.CreateAssignmentFile).Methods(POST)
 	c.Router.HandleFunc(Path(Assignment, File), c.Handlers.UpdateAssignmentFile).Methods(PUT)

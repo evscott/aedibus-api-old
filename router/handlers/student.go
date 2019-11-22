@@ -16,11 +16,18 @@ func (c *Config) CreateSubmission(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
 	// Unmarshal create reference request
-	req := &models.ReqCreateBranch{}
+	req := &models.ReqCreateSubmission{}
 	marsh.UnmarshalRequest(req, w, r)
 
-	c.helpers.CreateGitBranch(ctx, w, *req.RepoName, *req.BranchName)
-	c.helpers.CreateDbSubmission(ctx, *req.RepoName, *req.BranchName)
+	if err := c.helpers.GH.CreateGitBranch(ctx, req.Name, req.AssignmentName); err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	if err := c.helpers.DB.CreateDbSubmission(ctx, req.Name, req.AssignmentName); err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
 
 	w.WriteHeader(status.Status(status.OK))
 }
@@ -28,12 +35,45 @@ func (c *Config) CreateSubmission(w http.ResponseWriter, r *http.Request) {
 // TODO
 //
 //
-func (c *Config) SubmitAssignment(w http.ResponseWriter, r *http.Request) {
+func (c *Config) CreateSubmissionFile(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
-	req := &models.ReqCreatePR{}
-	marsh.UnmarshalRequest(req, w, r)
+	assignmentName := r.FormValue("assignmentName")
+	submissionName := r.FormValue("submissionName")
+	fileName := r.FormValue("fileName")
 
-	c.helpers.CreatePullRequestHelper(ctx, w, *req.Title, *req.Head, *req.Body, *req.RepoName)
+	contents, err := c.helpers.DB.ReceiveFileContentsHelper(w, r, fileName)
+	if err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	if err := c.helpers.GH.CreateGitFile(ctx, assignmentName, submissionName, fileName, contents); err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	blobSHA, err := c.helpers.GH.GetMasterBlobSha(ctx, assignmentName)
+	if err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	if err := c.helpers.DB.UpdateAssignmentBlob(ctx, assignmentName, *blobSHA); err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	submission, err := c.helpers.DB.GetSubmissionByBranchAndRepo(ctx, assignmentName, submissionName)
+	if err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	if err := c.helpers.DB.CreateDbFile(ctx, fileName, submission.Name); err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
 	w.WriteHeader(status.Status(status.OK))
 }

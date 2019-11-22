@@ -1,9 +1,8 @@
 package models
 
 type Submission struct {
-	ID         *string `pg:"id"`
-	Assignment *string `pg:"assignment,pk"`
-	Branch     *string `pg:"branch"`
-	Submitted  *bool   `pg:"submitted"`
-	Grade      *bool   `pg:"grade"`
+	Name           string `pg:"name,pk"`
+	AssignmentName string `pg:"assignment_name,pk"`
+	Submitted      bool   `pg:"submitted"`
+	Grade          bool   `pg:"grade"`
 }

@@ -1,22 +1,22 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE IF NOT EXISTS Assignments (
-    name varchar (255) PRIMARY KEY,
-    branch varchar (255) NOT NULL,
-    blob_shah varchar(40)
+    name varchar (255) UNIQUE,
+    blob_sha varchar(40),
+    PRIMARY KEY (name)
 );
 
 CREATE TABLE IF NOT EXISTS Submissions (
-    id uuid UNIQUE DEFAULT uuid_generate_v1(),
-    assignment varchar (255) REFERENCES Assignments(name),
-    branch varchar (255) NOT NULL,
+    name varchar (255) UNIQUE NOT NULL,
+    assignment_name varchar (255) REFERENCES Assignments(name) NOT NULL,
     submitted bool DEFAULT FALSE,
     grade bool DEFAULT FALSE,
-    PRIMARY KEY (id, assignment)
+    PRIMARY KEY (name, assignment_name)
 );
 
 CREATE TABLE IF NOT EXISTS Files (
-    submission_id uuid REFERENCES Submissions(id),
-    file_name varchar(255) NOT NULL,
-    PRIMARY KEY (submission_id, file_name)
+    name varchar(255) NOT NULL,
+    assignment_name varchar (255) REFERENCES Assignments(name) NOT NULL,
+    submission_name varchar (255) REFERENCES Submissions(name) NOT NULL,
+    PRIMARY KEY (submission_name, assignment_name, name)
 );
