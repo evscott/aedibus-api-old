@@ -19,36 +19,27 @@ func Init(router *mux.Router, dal *dal.DAL, github *github.Client, logger *logge
 		Handlers: handlers.Init(dal, github, logger),
 	}
 
-	c.handleGithubRoutes()
+	c.initRoutes()
 }
 
-func (c *Config) handleGithubRoutes() {
-	c.handleGeneralRoutes()
-	c.handleStudentRoutes()
-	c.handleInstructorRoutes()
+func (c *Config) initRoutes() {
+	c.generalRoutes()
+	c.studentRoutes()
+	c.instructorRoutes()
 }
 
-func (c *Config) handleGeneralRoutes() {
-	// Upload File
-	c.Router.HandleFunc(Path(Github, File), c.Handlers.UploadFile).Methods(POST)
-	// Update File
-	c.Router.HandleFunc(Path(Github, File), c.Handlers.UpdateFile).Methods(PUT)
-	// Get file
-	c.Router.HandleFunc(Path(File), c.Handlers.GetFile).Methods(GET)
-	// Get Readme
+func (c *Config) generalRoutes() {
 	c.Router.HandleFunc(Path(Readme), c.Handlers.GetReadme).Methods(GET)
 }
 
-func (c *Config) handleStudentRoutes() {
-	// Create Submission
-	c.Router.HandleFunc(Path(Github, Branch), c.Handlers.CreateSubmission).Methods(POST)
-	// Submit Readme
-	c.Router.HandleFunc(Path(Github, PullRequest), c.Handlers.SubmitAssignment).Methods(POST)
+func (c *Config) studentRoutes() {
+	c.Router.HandleFunc(Path(Submission), c.Handlers.CreateSubmission).Methods(POST)
+	c.Router.HandleFunc(Path(Submission, File), c.Handlers.CreateSubmissionFile).Methods(POST)
 }
 
-func (c *Config) handleInstructorRoutes() {
-	// Create Readme
-	c.Router.HandleFunc(Path(Github, Repository), c.Handlers.CreateAssignment).Methods(POST)
-	// Create Comment on Readme
-	c.Router.HandleFunc(Path(Github, PullRequest, Comment), c.Handlers.CreateComment).Methods(POST)
+func (c *Config) instructorRoutes() {
+	c.Router.HandleFunc(Path(Assignment), c.Handlers.CreateAssignment).Methods(POST)
+	c.Router.HandleFunc(Path(Assignment, File), c.Handlers.CreateAssignmentFile).Methods(POST)
+	c.Router.HandleFunc(Path(Assignment, File), c.Handlers.UpdateAssignmentFile).Methods(PUT)
+	c.Router.HandleFunc(Path(File, Contents), c.Handlers.GetFileContents).Methods(GET)
 }

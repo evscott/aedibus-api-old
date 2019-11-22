@@ -8,17 +8,13 @@ import (
 )
 
 type Config struct {
-	DAL     *dal.DAL
-	GAL     *github.Client
-	Logger  *logger.StandardLogger
+	logger  *logger.StandardLogger
 	helpers *helpers.Config
 }
 
 func Init(dal *dal.DAL, gal *github.Client, logger *logger.StandardLogger) *Config {
 	return &Config{
-		DAL:     dal,
-		GAL:     gal,
-		Logger:  logger,
-		helpers: helpers.Init(dal, gal, logger),
+		logger:  logger,
+		helpers: helpers.Init(dal, gal),
 	}
 }
