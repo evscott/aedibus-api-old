@@ -7,13 +7,13 @@ type File struct {
 }
 
 type ReqGetFile struct {
-	Name           string `json:"name"`
+	FileName       string `json:"fileName"`
 	AssignmentName string `json:"assignmentName"`
 	SubmissionName string `json:"submissionName"`
 }
 
 type ResGetFile struct {
-	Name           string `json:"name"`
+	FileName       string `json:"fileName"`
 	AssignmentName string `json:"assignmentName"`
 	SubmissionName string `json:"submissionName"`
 	Content        string `json:"content"`

@@ -22,7 +22,7 @@ func Init(gal *github.Client) *Config {
 
 // TODO
 //
-func (c *Config) CreateCommentHelper(ctx context.Context, fileName, assignmentName, commitID, body string, position int) (*github.PullRequestComment, error) {
+func (c *Config) CreateComment(ctx context.Context, fileName, assignmentName, commitID, body string, position int) (*github.PullRequestComment, error) {
 	comment := github.PullRequestComment{
 		Path:     &fileName,
 		CommitID: &commitID,
@@ -38,7 +38,7 @@ func (c *Config) CreateCommentHelper(ctx context.Context, fileName, assignmentNa
 
 // TODO
 //
-func (c *Config) CreatePullRequestHelper(ctx context.Context, submissionName, assignmentName, title, body string) (*github.PullRequest, error) {
+func (c *Config) CreatePullRequest(ctx context.Context, submissionName, assignmentName, title, body string) (*github.PullRequest, error) {
 	pullRequest := github.NewPullRequest{
 		Title:               &title,
 		Head:                &submissionName,
@@ -70,7 +70,7 @@ func (c *Config) CreateRepository(ctx context.Context, assignmentName string) er
 
 // TODO
 //
-func (c *Config) CreateGitFile(ctx context.Context, assignmentName, submissionName, fileName string, contents []byte) error {
+func (c *Config) CreateFile(ctx context.Context, assignmentName, submissionName, fileName string, contents []byte) error {
 	fileOptions := github.RepositoryContentFileOptions{
 		Message: utils.String("Uploading file"),
 		Content: contents,
@@ -85,7 +85,7 @@ func (c *Config) CreateGitFile(ctx context.Context, assignmentName, submissionNa
 // TODO
 //
 //
-func (c *Config) GetReadmeHelper(ctx context.Context, assignmentName, submissionName string) (*models.ResGetFile, error) {
+func (c *Config) GetReadme(ctx context.Context, assignmentName, submissionName string) (*models.ResGetFile, error) {
 	// Get blob sha of file from GithubHelpers to be used as target of update
 	getOptions := github.RepositoryContentGetOptions{Ref: fmt.Sprintf("heads/%s", submissionName)}
 	fileContent, _, err := c.gal.Repositories.GetReadme(ctx, consts.Z3E2C, assignmentName, &getOptions)
@@ -98,7 +98,7 @@ func (c *Config) GetReadmeHelper(ctx context.Context, assignmentName, submission
 	}
 
 	res := &models.ResGetFile{
-		Name:           assignmentName,
+		FileName:       assignmentName,
 		SubmissionName: submissionName,
 		Content:        content,
 	}
@@ -109,7 +109,7 @@ func (c *Config) GetReadmeHelper(ctx context.Context, assignmentName, submission
 // TODO
 //
 //
-func (c *Config) GetFileContentsHelper(ctx context.Context, assignmentName, submissionName string) (*models.ResGetFile, error) {
+func (c *Config) GetFileContents(ctx context.Context, assignmentName, submissionName string) (*models.ResGetFile, error) {
 	// Get blob sha of file from GithubHelpers to be used as target of update
 	getOptions := github.RepositoryContentGetOptions{Ref: fmt.Sprintf("heads/%s", submissionName)}
 	fileContent, _, _, err := c.gal.Repositories.GetContents(ctx, consts.Z3E2C, assignmentName, submissionName, &getOptions)
@@ -122,7 +122,7 @@ func (c *Config) GetFileContentsHelper(ctx context.Context, assignmentName, subm
 	}
 
 	res := &models.ResGetFile{
-		Name:           assignmentName,
+		FileName:       assignmentName,
 		SubmissionName: submissionName,
 		Content:        content,
 	}
@@ -132,7 +132,7 @@ func (c *Config) GetFileContentsHelper(ctx context.Context, assignmentName, subm
 
 // TODO
 //
-func (c *Config) UpdateFileHelper(ctx context.Context, assignmentName, submissionName, fileName string, newContents []byte) error {
+func (c *Config) UpdateFile(ctx context.Context, assignmentName, submissionName, fileName string, newContents []byte) error {
 	// Get blob sha of file from GithubHelpers to be used as target of update
 	var sha string
 	getOptions := github.RepositoryContentGetOptions{Ref: fmt.Sprintf("heads/%s", submissionName)}
@@ -157,7 +157,7 @@ func (c *Config) UpdateFileHelper(ctx context.Context, assignmentName, submissio
 
 // TODO
 //
-func (c *Config) CreateGitBranch(ctx context.Context, submissionName, assignmentName string) error {
+func (c *Config) CreateSubmission(ctx context.Context, submissionName, assignmentName string) error {
 	masterBranch, _, err := c.gal.Git.GetRef(ctx, consts.Z3E2C, assignmentName, fmt.Sprintf("refs/heads/%s", consts.MASTER))
 	if err != nil {
 		return err

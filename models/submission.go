@@ -6,3 +6,8 @@ type Submission struct {
 	Submitted      bool   `pg:"submitted"`
 	Grade          bool   `pg:"grade"`
 }
+
+type ReqCreateSubmission struct {
+	Name           string `json:"submissionName"`
+	AssignmentName string `json:"assignmentName"`
+}
