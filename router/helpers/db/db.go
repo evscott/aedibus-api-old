@@ -103,3 +103,14 @@ func (c *Config) GetDropboxByNameAndAssignment(ctx context.Context, dropboxName,
 	}
 	return dropbox, c.dal.Provider.GetDropboxByNameAndAssignment(ctx, dropbox)
 }
+
+// TODO
+//
+func (c *Config) CreateSubmission(ctx context.Context, dropboxName, assignmentName string, prNumber int) error {
+	submission := &models.Submission{
+		AssignmentName: assignmentName,
+		DropboxName:    dropboxName,
+		PrNumber:       prNumber,
+	}
+	return c.dal.Provider.CreateSubmission(ctx, submission)
+}
