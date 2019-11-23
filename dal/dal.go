@@ -31,7 +31,7 @@ type DAL struct {
 	info     *Info
 }
 
-func NewDAL(logger *logger.StandardLogger, host, port, user, password, name, migrations string) *DAL {
+func Init(logger *logger.StandardLogger, host, port, user, password, name, migrations string) *DAL {
 	dal := &DAL{
 		logger: logger,
 		info: &Info{

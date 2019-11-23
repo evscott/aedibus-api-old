@@ -42,7 +42,7 @@ type Config struct {
 	DAL          *dal.DAL
 }
 
-func GetConfig(ctx context.Context, router *mux.Router) *Config {
+func Init(ctx context.Context, router *mux.Router) *Config {
 	// Root log
 	log := logger.NewLogger()
 
@@ -89,7 +89,7 @@ func GetConfig(ctx context.Context, router *mux.Router) *Config {
 	if err := envconfig.Process("DB", &db); err != nil {
 		log.ConfigError(err)
 	}
-	config.DAL = dal.NewDAL(config.Logger, db.Host, db.Port, db.User, db.Password, db.Name, db.Migrations)
+	config.DAL = dal.Init(config.Logger, db.Host, db.Port, db.User, db.Password, db.Name, db.Migrations)
 
 	return config
 }

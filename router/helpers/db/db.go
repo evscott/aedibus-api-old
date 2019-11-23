@@ -75,31 +75,31 @@ func (c *Config) UpdateAssignmentBlob(ctx context.Context, assignmentName, blobS
 
 // TODO
 //
-func (c *Config) CreateFile(ctx context.Context, fileName, assignmentName, submissionName string) error {
+func (c *Config) CreateFile(ctx context.Context, fileName, assignmentName, dropboxName string) error {
 	file := &models.File{
 		Name:           fileName,
 		AssignmentName: assignmentName,
-		SubmissionName: submissionName,
+		DropboxName:    dropboxName,
 	}
 	return c.dal.Provider.CreateFile(ctx, file)
 }
 
 // TODO
 //
-func (c *Config) CreateSubmission(ctx context.Context, submissionName, assignmentName string) error {
-	submission := &models.Submission{
-		Name:           submissionName,
+func (c *Config) CreateDropbox(ctx context.Context, dropboxName, assignmentName string) error {
+	dropbox := &models.Dropbox{
+		Name:           dropboxName,
 		AssignmentName: assignmentName,
 	}
-	return c.dal.Provider.CreateSubmission(ctx, submission)
+	return c.dal.Provider.CreateDropbox(ctx, dropbox)
 }
 
 // TODO
 //
-func (c *Config) GetSubmissionByNameAndAssignment(ctx context.Context, submissionName, assignmentName string) (*models.Submission, error) {
-	submission := &models.Submission{
-		Name:           submissionName,
+func (c *Config) GetDropboxByNameAndAssignment(ctx context.Context, dropboxName, assignmentName string) (*models.Dropbox, error) {
+	dropbox := &models.Dropbox{
+		Name:           dropboxName,
 		AssignmentName: assignmentName,
 	}
-	return submission, c.dal.Provider.GetSubmissionByBranchAndRepo(ctx, submission)
+	return dropbox, c.dal.Provider.GetDropboxByNameAndAssignment(ctx, dropbox)
 }

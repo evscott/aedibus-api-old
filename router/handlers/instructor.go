@@ -16,17 +16,20 @@ func (c *Config) CreateAssignment(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
 	req := &models.ReqCreateAssignment{}
-	marsh.UnmarshalRequest(req, w, r)
+	if err := marsh.UnmarshalRequest(req, w, r); err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
 
 	if err := c.helpers.GH.CreateRepository(ctx, req.Name); err != nil {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
+
 	if err := c.helpers.DB.CreateAssignment(ctx, req.Name); err != nil {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
-	w.WriteHeader(status.Status(status.OK))
 }
 
 // TODOName
@@ -36,7 +39,7 @@ func (c *Config) CreateAssignmentFile(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
 	assignmentName := r.FormValue("assignmentName")
-	submissionName := r.FormValue("submissionName")
+	dropboxName := r.FormValue("dropboxName")
 	fileName := r.FormValue("fileName")
 
 	contents, err := c.helpers.DB.GetFileFromForm(w, r, fileName)
@@ -45,7 +48,7 @@ func (c *Config) CreateAssignmentFile(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	if err := c.helpers.GH.CreateFile(ctx, assignmentName, submissionName, fileName, contents); err != nil {
+	if err := c.helpers.GH.CreateFile(ctx, assignmentName, dropboxName, fileName, contents); err != nil {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
@@ -60,8 +63,6 @@ func (c *Config) CreateAssignmentFile(w http.ResponseWriter, r *http.Request) {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
-
-	w.WriteHeader(status.Status(status.OK))
 }
 
 // TODO
@@ -71,7 +72,7 @@ func (c *Config) UpdateAssignmentFile(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
 	assignmentName := r.FormValue("assignmentName")
-	submissionName := r.FormValue("submissionName")
+	dropboxName := r.FormValue("dropboxName")
 	fileName := r.FormValue("fileName")
 
 	contents, err := c.helpers.DB.GetFileFromForm(w, r, fileName)
@@ -80,7 +81,7 @@ func (c *Config) UpdateAssignmentFile(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	if err := c.helpers.GH.UpdateFile(ctx, assignmentName, submissionName, fileName, contents); err != nil {
+	if err := c.helpers.GH.UpdateFile(ctx, assignmentName, dropboxName, fileName, contents); err != nil {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
@@ -95,8 +96,6 @@ func (c *Config) UpdateAssignmentFile(w http.ResponseWriter, r *http.Request) {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
-
-	w.WriteHeader(status.Status(status.OK))
 }
 
 // TODO
@@ -111,13 +110,37 @@ func (c *Config) GetFileContents(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	res, err := c.helpers.GH.GetFileContents(ctx, req.FileName, req.SubmissionName)
+	res, err := c.helpers.GH.GetFileContents(ctx, req.FileName, req.DropboxName)
 	if err != nil {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
 	if err := marsh.MarshalResponse(res, w); err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+}
+
+// TODO
+//
+//
+func (c *Config) CreateDropbox(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+
+	// Unmarshal create reference request
+	req := &models.ReqCreateDropbox{}
+	if err := marsh.UnmarshalRequest(req, w, r); err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	if err := c.helpers.GH.CreateDropbox(ctx, req.DropboxName, req.AssignmentName); err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	if err := c.helpers.DB.CreateDropbox(ctx, req.DropboxName, req.AssignmentName); err != nil {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
