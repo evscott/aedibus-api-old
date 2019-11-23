@@ -9,8 +9,6 @@ CREATE TABLE IF NOT EXISTS Assignments (
 CREATE TABLE IF NOT EXISTS Dropboxes (
     name varchar (255) UNIQUE NOT NULL,
     assignment_name varchar (255) REFERENCES Assignments(name) NOT NULL,
-    submitted bool DEFAULT FALSE,
-    grade bool DEFAULT FALSE,
     PRIMARY KEY (name, assignment_name)
 );
 
@@ -19,4 +17,13 @@ CREATE TABLE IF NOT EXISTS Files (
     assignment_name varchar (255) REFERENCES Assignments(name) NOT NULL,
     dropbox_name varchar (255) REFERENCES Dropboxes(name) NOT NULL,
     PRIMARY KEY (name, assignment_name, dropbox_name)
+);
+
+CREATE TABLE IF NOT EXISTS Submissions (
+    assignment_name varchar (255) REFERENCES Assignments(name) NOT NULL,
+    dropbox_name varchar (255) REFERENCES Dropboxes(name) NOT NULL,
+    pr_number smallint,
+    number_of_tests smallint,
+    tests_passed smallint,
+    PRIMARY KEY (assignment_name, dropbox_name)
 );
