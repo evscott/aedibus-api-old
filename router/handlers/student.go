@@ -12,35 +12,11 @@ import (
 // TODO
 //
 //
-func (c *Config) CreateSubmission(w http.ResponseWriter, r *http.Request) {
-	ctx := context.Background()
-
-	// Unmarshal create reference request
-	req := &models.ReqCreateSubmission{}
-	if err := marsh.UnmarshalRequest(req, w, r); err != nil {
-		c.logger.Error(err)
-		w.WriteHeader(status.Status(status.InternalServerError))
-	}
-
-	if err := c.helpers.GH.CreateSubmission(ctx, req.Name, req.AssignmentName); err != nil {
-		c.logger.Error(err)
-		w.WriteHeader(status.Status(status.InternalServerError))
-	}
-
-	if err := c.helpers.DB.CreateSubmission(ctx, req.Name, req.AssignmentName); err != nil {
-		c.logger.Error(err)
-		w.WriteHeader(status.Status(status.InternalServerError))
-	}
-}
-
-// TODO
-//
-//
-func (c *Config) CreateSubmissionFile(w http.ResponseWriter, r *http.Request) {
+func (c *Config) CreateDropboxFile(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
 	assignmentName := r.FormValue("assignmentName")
-	submissionName := r.FormValue("submissionName")
+	dropboxName := r.FormValue("dropboxName")
 	fileName := r.FormValue("fileName")
 
 	contents, err := c.helpers.DB.GetFileFromForm(w, r, fileName)
@@ -49,7 +25,7 @@ func (c *Config) CreateSubmissionFile(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	if err := c.helpers.GH.CreateFile(ctx, assignmentName, submissionName, fileName, contents); err != nil {
+	if err := c.helpers.GH.CreateFile(ctx, assignmentName, dropboxName, fileName, contents); err != nil {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
@@ -65,7 +41,7 @@ func (c *Config) CreateSubmissionFile(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	if err := c.helpers.DB.CreateFile(ctx, fileName, assignmentName, submissionName); err != nil {
+	if err := c.helpers.DB.CreateFile(ctx, fileName, assignmentName, dropboxName); err != nil {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
@@ -82,10 +58,9 @@ func (c *Config) SubmitAssignment(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	_, err := c.helpers.GH.CreatePullRequest(ctx, req.SubmissionName, req.AssignmentName, req.SubmissionName, req.Body)
+	_, err := c.helpers.GH.CreatePullRequest(ctx, req.DropboxName, req.AssignmentName, req.DropboxName, req.Body)
 	if err != nil {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
-
 }

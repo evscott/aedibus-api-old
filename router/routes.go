@@ -9,7 +9,7 @@ const (
 	Student    Resource = "/student"
 	Instructor Resource = "/instructor"
 	Assignment Resource = "/assignment"
-	Submission Resource = "/submission"
+	Dropbox    Resource = "/dropbox"
 	Submit     Resource = "/submit"
 	File       Resource = "/file"
 	Contents   Resource = "/contents"

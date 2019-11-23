@@ -38,10 +38,10 @@ func (c *Config) CreateComment(ctx context.Context, fileName, assignmentName, co
 
 // TODO
 //
-func (c *Config) CreatePullRequest(ctx context.Context, submissionName, assignmentName, title, body string) (*github.PullRequest, error) {
+func (c *Config) CreatePullRequest(ctx context.Context, dropboxName, assignmentName, title, body string) (*github.PullRequest, error) {
 	pullRequest := github.NewPullRequest{
 		Title:               &title,
-		Head:                &submissionName,
+		Head:                &dropboxName,
 		Base:                utils.String(consts.MASTER),
 		Body:                &body,
 		Issue:               nil,
@@ -70,11 +70,11 @@ func (c *Config) CreateRepository(ctx context.Context, assignmentName string) er
 
 // TODO
 //
-func (c *Config) CreateFile(ctx context.Context, assignmentName, submissionName, fileName string, contents []byte) error {
+func (c *Config) CreateFile(ctx context.Context, assignmentName, dropboxName, fileName string, contents []byte) error {
 	fileOptions := github.RepositoryContentFileOptions{
 		Message: utils.String("Uploading file"),
 		Content: contents,
-		Branch:  &submissionName,
+		Branch:  &dropboxName,
 	}
 	if _, _, err := c.gal.Repositories.CreateFile(ctx, consts.Z3E2C, assignmentName, fileName, &fileOptions); err != nil {
 		return err
@@ -85,9 +85,9 @@ func (c *Config) CreateFile(ctx context.Context, assignmentName, submissionName,
 // TODO
 //
 //
-func (c *Config) GetReadme(ctx context.Context, assignmentName, submissionName string) (*models.ResGetFile, error) {
+func (c *Config) GetReadme(ctx context.Context, assignmentName, dropboxName string) (*models.ResGetFile, error) {
 	// Get blob sha of file from GithubHelpers to be used as target of update
-	getOptions := github.RepositoryContentGetOptions{Ref: fmt.Sprintf("heads/%s", submissionName)}
+	getOptions := github.RepositoryContentGetOptions{Ref: fmt.Sprintf("heads/%s", dropboxName)}
 	fileContent, _, err := c.gal.Repositories.GetReadme(ctx, consts.Z3E2C, assignmentName, &getOptions)
 	if err != nil {
 		return nil, err
@@ -98,9 +98,9 @@ func (c *Config) GetReadme(ctx context.Context, assignmentName, submissionName s
 	}
 
 	res := &models.ResGetFile{
-		FileName:       assignmentName,
-		SubmissionName: submissionName,
-		Content:        content,
+		FileName:    assignmentName,
+		DropboxName: dropboxName,
+		Content:     content,
 	}
 
 	return res, nil
@@ -109,10 +109,10 @@ func (c *Config) GetReadme(ctx context.Context, assignmentName, submissionName s
 // TODO
 //
 //
-func (c *Config) GetFileContents(ctx context.Context, assignmentName, submissionName string) (*models.ResGetFile, error) {
+func (c *Config) GetFileContents(ctx context.Context, assignmentName, dropboxName string) (*models.ResGetFile, error) {
 	// Get blob sha of file from GithubHelpers to be used as target of update
-	getOptions := github.RepositoryContentGetOptions{Ref: fmt.Sprintf("heads/%s", submissionName)}
-	fileContent, _, _, err := c.gal.Repositories.GetContents(ctx, consts.Z3E2C, assignmentName, submissionName, &getOptions)
+	getOptions := github.RepositoryContentGetOptions{Ref: fmt.Sprintf("heads/%s", dropboxName)}
+	fileContent, _, _, err := c.gal.Repositories.GetContents(ctx, consts.Z3E2C, assignmentName, dropboxName, &getOptions)
 	if err != nil {
 		return nil, err
 	}
@@ -122,9 +122,9 @@ func (c *Config) GetFileContents(ctx context.Context, assignmentName, submission
 	}
 
 	res := &models.ResGetFile{
-		FileName:       assignmentName,
-		SubmissionName: submissionName,
-		Content:        content,
+		FileName:    assignmentName,
+		DropboxName: dropboxName,
+		Content:     content,
 	}
 
 	return res, nil
@@ -132,10 +132,10 @@ func (c *Config) GetFileContents(ctx context.Context, assignmentName, submission
 
 // TODO
 //
-func (c *Config) UpdateFile(ctx context.Context, assignmentName, submissionName, fileName string, newContents []byte) error {
+func (c *Config) UpdateFile(ctx context.Context, assignmentName, dropboxName, fileName string, newContents []byte) error {
 	// Get blob sha of file from GithubHelpers to be used as target of update
 	var sha string
-	getOptions := github.RepositoryContentGetOptions{Ref: fmt.Sprintf("heads/%s", submissionName)}
+	getOptions := github.RepositoryContentGetOptions{Ref: fmt.Sprintf("heads/%s", dropboxName)}
 	oldContents, _, _, err := c.gal.Repositories.GetContents(ctx, consts.Z3E2C, assignmentName, fileName, &getOptions)
 	if err != nil {
 		return err
@@ -146,7 +146,7 @@ func (c *Config) UpdateFile(ctx context.Context, assignmentName, submissionName,
 	fileOptions := github.RepositoryContentFileOptions{
 		Message: utils.String("Updating file"), // TODO
 		Content: newContents,
-		Branch:  &submissionName,
+		Branch:  &dropboxName,
 		SHA:     &sha,
 	}
 	if _, _, err := c.gal.Repositories.UpdateFile(ctx, consts.Z3E2C, assignmentName, fileName, &fileOptions); err != nil {
@@ -157,15 +157,15 @@ func (c *Config) UpdateFile(ctx context.Context, assignmentName, submissionName,
 
 // TODO
 //
-func (c *Config) CreateSubmission(ctx context.Context, submissionName, assignmentName string) error {
+func (c *Config) CreateDropbox(ctx context.Context, dropboxName, assignmentName string) error {
 	masterBranch, _, err := c.gal.Git.GetRef(ctx, consts.Z3E2C, assignmentName, fmt.Sprintf("refs/heads/%s", consts.MASTER))
 	if err != nil {
 		return err
 	}
 
 	reference := github.Reference{
-		Ref: utils.String(fmt.Sprintf("refs/heads/%s", submissionName)),
-		URL: utils.String(fmt.Sprintf("https://api.github.com/repos/%s/%s/git/refs/heads/%s", consts.Z3E2C, assignmentName, submissionName)),
+		Ref: utils.String(fmt.Sprintf("refs/heads/%s", dropboxName)),
+		URL: utils.String(fmt.Sprintf("https://api.github.com/repos/%s/%s/git/refs/heads/%s", consts.Z3E2C, assignmentName, dropboxName)),
 		Object: &github.GitObject{
 			Type: utils.String("commit"),
 			SHA:  masterBranch.Object.SHA,
@@ -187,4 +187,10 @@ func (c *Config) GetMasterBlobSha(ctx context.Context, assignmentName string) (*
 		return nil, err
 	}
 	return masterBranch.Object.SHA, nil
+}
+
+// TODO
+//
+func (c *Config) GetPrComments(ctx context.Context, assignmentName, dropboxName string) error {
+	return nil
 }
