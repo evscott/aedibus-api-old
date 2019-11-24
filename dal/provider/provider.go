@@ -31,4 +31,5 @@ type Provider interface {
 	GetDropboxByNameAndAssignment(ctx context.Context, submission *models.Dropbox) error
 	// Submissions
 	CreateSubmission(ctx context.Context, submission *models.Submission) error
+	GetSubmission(ctx context.Context, submission *models.Submission) error
 }

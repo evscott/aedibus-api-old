@@ -1,10 +1,19 @@
 package models
 
 type Submission struct {
-	AssignmentName string `pg:"assignment_name"`
-	DropboxName    string `pg:"dropbox_name"`
-	Grade          string `pg:"grade"`
+	AssignmentName string `pg:"assignment_name,pk"`
+	DropboxName    string `pg:"dropbox_name,pk"`
 	PrNumber       int    `pg:"pr_number"`
-	NumberOfTests  int    `pg:"number_of_tests"`
+	TestsRan       int    `pg:"tests_ran"`
 	TestsPassed    int    `pg:"tests_passed"`
+}
+
+type ReqGetSubmissionResults struct {
+	AssignmentName string `json:"assignmentName"`
+	DropboxName    string `pg:"dropboxName"`
+}
+
+type ResGetSubmissionResults struct {
+	TestsRan    int `json:"numberOfTests"`
+	TestsPassed int `json:"testsPassed"`
 }

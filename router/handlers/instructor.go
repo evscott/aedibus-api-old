@@ -145,3 +145,35 @@ func (c *Config) CreateDropbox(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 }
+
+// TODO
+//
+//
+func (c *Config) GetSubmissionResults(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+
+	keys := r.URL.Query()
+	assignmentName := keys.Get("assignmentName")
+	dropboxName := keys.Get("dropboxName")
+
+	req := &models.ReqGetSubmissionResults{
+		AssignmentName: assignmentName,
+		DropboxName:    dropboxName,
+	}
+
+	submission, err := c.helpers.DB.GetSubmission(ctx, req.DropboxName, req.AssignmentName)
+	if err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	res := &models.ResGetSubmissionResults{
+		TestsRan:    submission.TestsRan,
+		TestsPassed: submission.TestsPassed,
+	}
+
+	if err := marsh.MarshalResponse(res, w); err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+}

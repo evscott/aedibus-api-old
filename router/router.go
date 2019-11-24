@@ -43,4 +43,5 @@ func (c *Config) instructorRoutes() {
 	c.Router.HandleFunc(Path(Assignment, File), c.Handlers.UpdateAssignmentFile).Methods(PUT)
 	c.Router.HandleFunc(Path(File, Contents), c.Handlers.GetFileContents).Methods(GET)
 	c.Router.HandleFunc(Path(Dropbox), c.Handlers.CreateDropbox).Methods(POST)
+	c.Router.HandleFunc(Path(Submission), c.Handlers.GetSubmissionResults).Methods(GET)
 }

@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS Submissions (
     assignment_name varchar (255) REFERENCES Assignments(name) NOT NULL,
     dropbox_name varchar (255) REFERENCES Dropboxes(name) NOT NULL,
     pr_number smallint,
-    number_of_tests smallint,
+    tests_ran smallint,
     tests_passed smallint,
     PRIMARY KEY (assignment_name, dropbox_name)
 );
