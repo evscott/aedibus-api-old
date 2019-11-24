@@ -5,6 +5,13 @@ import (
 	"github.com/evscott/z3-e2c-api/models"
 )
 
+func (c *Config) GetFile(ctx context.Context, file *models.File) error {
+	return c.db.
+		Model(file).
+		WherePK().
+		Select()
+}
+
 func (c *Config) CreateFile(ctx context.Context, file *models.File) error {
 	return c.db.Insert(file)
 }

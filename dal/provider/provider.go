@@ -33,4 +33,5 @@ type Provider interface {
 	// Submissions
 	CreateSubmission(ctx context.Context, submission *models.Submission) error
 	GetSubmission(ctx context.Context, submission *models.Submission) error
+	GetFile(ctx context.Context, file *models.File) error
 }

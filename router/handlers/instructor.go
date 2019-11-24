@@ -248,5 +248,29 @@ func (c *Config) GetSubmissionResults(w http.ResponseWriter, r *http.Request) {
 //
 //
 func (c *Config) LeaveFeedbackOnSubmission(w http.ResponseWriter, r *http.Request) {
-	//ctx := context.Background()
+	ctx := context.Background()
+
+	req := &models.ReqLeaveFeedback{}
+	if err := marsh.UnmarshalRequest(req, w, r); err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	submission, err := c.helpers.DB.GetSubmission(ctx, req.DropboxName, req.AssignmentName)
+	if err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	file, err := c.helpers.DB.GetFile(ctx, req.DropboxName, req.AssignmentName, req.FileName)
+	if err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	_, err = c.helpers.GH.CreateComment(ctx, req.FileName, req.AssignmentName, file.CommitID, req.Feedback, submission.PrNumber, req.LineNumber)
+	if err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
 }

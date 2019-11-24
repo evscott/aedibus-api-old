@@ -128,7 +128,7 @@ func (c *Config) CreateSubmission(ctx context.Context, dropboxName, assignmentNa
 	return c.dal.Provider.CreateSubmission(ctx, submission)
 }
 
-// TOOD
+// TODO
 //
 func (c *Config) GetSubmission(ctx context.Context, dropboxName, assignmentName string) (*models.Submission, error) {
 	submission := &models.Submission{
@@ -136,4 +136,15 @@ func (c *Config) GetSubmission(ctx context.Context, dropboxName, assignmentName 
 		DropboxName:    dropboxName,
 	}
 	return submission, c.dal.Provider.GetSubmission(ctx, submission)
+}
+
+// TODO
+//
+func (c *Config) GetFile(ctx context.Context, dropboxName, assignmentName, fileName string) (*models.File, error) {
+	file := &models.File{
+		Name:           fileName,
+		AssignmentName: assignmentName,
+		DropboxName:    dropboxName,
+	}
+	return file, c.dal.Provider.GetFile(ctx, file)
 }
