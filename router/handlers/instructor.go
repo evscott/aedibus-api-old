@@ -47,6 +47,11 @@ func (c *Config) CreateAssignment(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
+	if err := c.helpers.DB.CreateDropbox(ctx, constants.MASTER, req.AssignmentName); err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
 	resInstructions, err := c.helpers.GH.CreateFile(ctx, assignmentName, constants.MASTER, instructions, instructionsContents)
 	if err != nil {
 		c.logger.Error(err)
@@ -243,6 +248,5 @@ func (c *Config) GetSubmissionResults(w http.ResponseWriter, r *http.Request) {
 //
 //
 func (c *Config) LeaveFeedbackOnSubmission(w http.ResponseWriter, r *http.Request) {
-	ctx := context.Background()
-
+	//ctx := context.Background()
 }
