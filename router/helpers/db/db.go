@@ -114,3 +114,13 @@ func (c *Config) CreateSubmission(ctx context.Context, dropboxName, assignmentNa
 	}
 	return c.dal.Provider.CreateSubmission(ctx, submission)
 }
+
+// TOOD
+//
+func (c *Config) GetSubmission(ctx context.Context, dropboxName, assignmentName string) (*models.Submission, error) {
+	submission := &models.Submission{
+		AssignmentName: assignmentName,
+		DropboxName:    dropboxName,
+	}
+	return submission, c.dal.Provider.GetSubmission(ctx, submission)
+}
