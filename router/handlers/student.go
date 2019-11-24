@@ -25,7 +25,8 @@ func (c *Config) CreateDropboxFile(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	if err := c.helpers.GH.CreateFile(ctx, assignmentName, dropboxName, fileName, contents); err != nil {
+	res, err := c.helpers.GH.CreateFile(ctx, assignmentName, dropboxName, fileName, contents)
+	if err != nil {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
@@ -41,7 +42,7 @@ func (c *Config) CreateDropboxFile(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	if err := c.helpers.DB.CreateFile(ctx, fileName, assignmentName, dropboxName); err != nil {
+	if err := c.helpers.DB.CreateFile(ctx, fileName, assignmentName, dropboxName, res.Commit.String()); err != nil {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}

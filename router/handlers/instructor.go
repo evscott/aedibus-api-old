@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"github.com/evscott/z3-e2c-api/shared/constants"
 	status "github.com/evscott/z3-e2c-api/shared/http-codes"
 	"net/http"
 
@@ -15,24 +16,72 @@ import (
 func (c *Config) CreateAssignment(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
-	req := &models.ReqCreateAssignment{}
-	if err := marsh.UnmarshalRequest(req, w, r); err != nil {
+	assignmentName := r.FormValue("assignmentName")
+	instructions := r.FormValue("instructions")
+	testRunner := r.FormValue("testRunner")
+
+	instructionsContents, err := c.helpers.DB.GetFileFromForm(w, r, instructions)
+	if err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+	testRunnerContents, err := c.helpers.DB.GetFileFromForm(w, r, testRunner)
+	if err != nil {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	if err := c.helpers.GH.CreateRepository(ctx, req.Name); err != nil {
+	req := &models.ReqCreateAssignment{
+		AssignmentName:       assignmentName,
+		InstructionsContents: instructionsContents,
+		TestRunnerContents:   testRunnerContents,
+	}
+
+	if err := c.helpers.GH.CreateRepository(ctx, req.AssignmentName); err != nil {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	if err := c.helpers.DB.CreateAssignment(ctx, req.Name); err != nil {
+	if err := c.helpers.DB.CreateAssignment(ctx, req.AssignmentName); err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	resInstructions, err := c.helpers.GH.CreateFile(ctx, assignmentName, constants.MASTER, instructions, instructionsContents)
+	if err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	resTestRunner, err := c.helpers.GH.CreateFile(ctx, assignmentName, constants.MASTER, testRunner, testRunnerContents)
+	if err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	if err := c.helpers.DB.CreateFile(ctx, instructions, assignmentName, constants.MASTER, *resInstructions.Commit.SHA); err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	if err := c.helpers.DB.CreateFile(ctx, testRunner, assignmentName, constants.MASTER, *resTestRunner.Commit.SHA); err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	blobSHA, err := c.helpers.GH.GetMasterBlobSha(ctx, assignmentName)
+	if err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	if err := c.helpers.DB.UpdateAssignmentBlob(ctx, assignmentName, *blobSHA); err != nil {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 }
 
-// TODOName
+// TODO
 //
 //
 func (c *Config) CreateAssignmentFile(w http.ResponseWriter, r *http.Request) {
@@ -48,7 +97,13 @@ func (c *Config) CreateAssignmentFile(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	if err := c.helpers.GH.CreateFile(ctx, assignmentName, dropboxName, fileName, contents); err != nil {
+	res, err := c.helpers.GH.CreateFile(ctx, assignmentName, dropboxName, fileName, contents)
+	if err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	if err := c.helpers.DB.CreateFile(ctx, fileName, assignmentName, constants.MASTER, *res.Commit.SHA); err != nil {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
@@ -81,7 +136,13 @@ func (c *Config) UpdateAssignmentFile(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	if err := c.helpers.GH.UpdateFile(ctx, assignmentName, dropboxName, fileName, contents); err != nil {
+	res, err := c.helpers.GH.UpdateFile(ctx, assignmentName, dropboxName, fileName, contents)
+	if err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	if err := c.helpers.DB.UpdateFile(ctx, assignmentName, dropboxName, fileName, *res.Commit.SHA); err != nil {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
@@ -176,4 +237,12 @@ func (c *Config) GetSubmissionResults(w http.ResponseWriter, r *http.Request) {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
+}
+
+// TODO
+//
+//
+func (c *Config) LeaveFeedbackOnSubmission(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+
 }

@@ -8,3 +8,11 @@ import (
 func (c *Config) CreateFile(ctx context.Context, file *models.File) error {
 	return c.db.Insert(file)
 }
+
+func (c *Config) UpdateFile(ctx context.Context, file *models.File) error {
+	_, err := c.db.Model(file).
+		WherePK().
+		Set("commit_id = ?", file.CommitID).
+		Update()
+	return err
+}

@@ -75,11 +75,24 @@ func (c *Config) UpdateAssignmentBlob(ctx context.Context, assignmentName, blobS
 
 // TODO
 //
-func (c *Config) CreateFile(ctx context.Context, fileName, assignmentName, dropboxName string) error {
+func (c *Config) UpdateFile(ctx context.Context, assignmentName, dropboxName, fileName, commitID string) error {
 	file := &models.File{
 		Name:           fileName,
 		AssignmentName: assignmentName,
 		DropboxName:    dropboxName,
+		CommitID:       commitID,
+	}
+	return c.dal.Provider.UpdateFile(ctx, file)
+}
+
+// TODO
+//
+func (c *Config) CreateFile(ctx context.Context, fileName, assignmentName, dropboxName, commitID string) error {
+	file := &models.File{
+		Name:           fileName,
+		AssignmentName: assignmentName,
+		DropboxName:    dropboxName,
+		CommitID:       commitID,
 	}
 	return c.dal.Provider.CreateFile(ctx, file)
 }

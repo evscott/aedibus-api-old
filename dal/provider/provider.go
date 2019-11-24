@@ -26,6 +26,7 @@ type Provider interface {
 	GetAssignment(ctx context.Context, assignment *models.Assignment) error
 	// Files
 	CreateFile(ctx context.Context, file *models.File) error
+	UpdateFile(ctx context.Context, file *models.File) error
 	// Dropboxes
 	CreateDropbox(ctx context.Context, dropbox *models.Dropbox) error
 	GetDropboxByNameAndAssignment(ctx context.Context, submission *models.Dropbox) error
