@@ -278,7 +278,7 @@ func (c *Config) LeaveFeedbackOnSubmission(w http.ResponseWriter, r *http.Reques
 // TODO
 //
 //
-func (c *Config) GetFeedbackOnSubmission(w http.ResponseWriter, r *http.Request) {
+func (c *Config) GetFeedbackOnSubmissionFile(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
 	req := &models.ReqGetFeedback{}

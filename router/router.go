@@ -35,6 +35,7 @@ func (c *Config) generalRoutes() {
 func (c *Config) studentRoutes() {
 	c.Router.HandleFunc(Path(Dropbox, File), c.Handlers.CreateDropboxFile).Methods(POST)
 	c.Router.HandleFunc(Path(Submit, Assignment), c.Handlers.SubmitAssignment).Methods(POST)
+	c.Router.HandleFunc(Path(Submission, Feedback, File), c.Handlers.GetFeedbackOnSubmissionFile).Methods(GET)
 }
 
 func (c *Config) instructorRoutes() {
@@ -45,5 +46,5 @@ func (c *Config) instructorRoutes() {
 	c.Router.HandleFunc(Path(Dropbox), c.Handlers.CreateDropbox).Methods(POST)
 	c.Router.HandleFunc(Path(Submission), c.Handlers.GetSubmissionResults).Methods(GET)
 	c.Router.HandleFunc(Path(Submission, Feedback), c.Handlers.LeaveFeedbackOnSubmission).Methods(POST)
-	c.Router.HandleFunc(Path(Submission, Feedback), c.Handlers.GetFeedbackOnSubmission).Methods(GET)
+	c.Router.HandleFunc(Path(Submission, Feedback, File), c.Handlers.GetFeedbackOnSubmissionFile).Methods(GET)
 }
