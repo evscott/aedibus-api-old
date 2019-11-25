@@ -4,6 +4,7 @@ type File struct {
 	Name           string `pg:"name,pk"`
 	AssignmentName string `pg:"assignment_name,pk"`
 	DropboxName    string `pg:"dropbox_name,pk"`
+	CommitID       string `pg:"commit_id"`
 }
 
 type ReqGetFile struct {

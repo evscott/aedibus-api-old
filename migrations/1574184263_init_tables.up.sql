@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS Files (
     name varchar(255) NOT NULL,
     assignment_name varchar (255) REFERENCES Assignments(name) NOT NULL,
     dropbox_name varchar (255) REFERENCES Dropboxes(name) NOT NULL,
+    commit_id varchar(40) NOT NULL,
     PRIMARY KEY (name, assignment_name, dropbox_name)
 );
 

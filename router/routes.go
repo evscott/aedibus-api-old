@@ -15,6 +15,7 @@ const (
 	File       Resource = "/file"
 	Contents   Resource = "/contents"
 	Readme     Resource = "/readme"
+	Feedback   Resource = "/feedback"
 )
 
 /***** HTTP Methods *****/

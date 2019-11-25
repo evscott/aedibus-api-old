@@ -6,5 +6,7 @@ type Assignment struct {
 }
 
 type ReqCreateAssignment struct {
-	Name string `json:"assignmentName"`
+	AssignmentName       string
+	InstructionsContents []byte
+	TestRunnerContents   []byte
 }
