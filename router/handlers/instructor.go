@@ -274,3 +274,42 @@ func (c *Config) LeaveFeedbackOnSubmission(w http.ResponseWriter, r *http.Reques
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 }
+
+// TODO
+//
+//
+func (c *Config) GetFeedbackOnSubmission(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+
+	req := &models.ReqGetFeedback{}
+	keys := r.URL.Query()
+	req.AssignmentName = keys.Get("assignmentName")
+	req.DropboxName = keys.Get("dropboxName")
+	req.FileName = keys.Get("fileName")
+
+	submission, err := c.helpers.DB.GetSubmission(ctx, req.DropboxName, req.AssignmentName)
+	if err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	comments, err := c.helpers.GH.GetPrComments(ctx, req.AssignmentName, submission.PrNumber)
+	if err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	res := make(models.ResGetFeedback, len(comments))
+
+	for i := 0; i < len(comments); i++ {
+		res[i].FileName = req.FileName
+		res[i].CommitID = *comments[i].CommitID
+		res[i].LineNumber = *comments[i].Position
+		res[i].Body = *comments[i].Body
+	}
+
+	if err := marsh.MarshalResponse(res, w); err != nil {
+		c.logger.Error(err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+}

@@ -45,4 +45,5 @@ func (c *Config) instructorRoutes() {
 	c.Router.HandleFunc(Path(Dropbox), c.Handlers.CreateDropbox).Methods(POST)
 	c.Router.HandleFunc(Path(Submission), c.Handlers.GetSubmissionResults).Methods(GET)
 	c.Router.HandleFunc(Path(Submission, Feedback), c.Handlers.LeaveFeedbackOnSubmission).Methods(POST)
+	c.Router.HandleFunc(Path(Submission, Feedback), c.Handlers.GetFeedbackOnSubmission).Methods(GET)
 }

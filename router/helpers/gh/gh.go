@@ -3,7 +3,6 @@ package gh
 import (
 	"context"
 	"fmt"
-
 	"github.com/evscott/z3-e2c-api/models"
 	consts "github.com/evscott/z3-e2c-api/shared/constants"
 	"github.com/evscott/z3-e2c-api/shared/utils"
@@ -194,6 +193,8 @@ func (c *Config) GetMasterBlobSha(ctx context.Context, assignmentName string) (*
 
 // TODO
 //
-func (c *Config) GetPrComments(ctx context.Context, assignmentName, dropboxName string) error {
-	return nil
+func (c *Config) GetPrComments(ctx context.Context, assignmentName string, prNumber int) ([]*github.PullRequestComment, error) {
+	options := &github.PullRequestListCommentsOptions{}
+	comments, _, err := c.gal.PullRequests.ListComments(ctx, consts.Z3E2C, assignmentName, prNumber, options)
+	return comments, err
 }
