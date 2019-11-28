@@ -25,6 +25,12 @@ Inside of the api root directory, run:
 docker-compose down && sudo docker-compose up --build
 ```
 
+## Architecture
+
+![uml](./assets/z3-e2c-api-UML-d1.png)
+
+*Note: this diagram is a rough draft and omits many details*
+
 ## Authors
 
 * **[Eliot Scott](https://github.com/evscott)** - *Initial work*
