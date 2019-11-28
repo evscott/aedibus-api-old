@@ -2,23 +2,12 @@ package db
 
 import (
 	"context"
-	"github.com/evscott/z3-e2c-api/dal"
 	"github.com/evscott/z3-e2c-api/models"
 )
 
-type Config struct {
-	dal *dal.DAL
-}
-
-func Init(dal *dal.DAL) *Config {
-	return &Config{
-		dal: dal,
-	}
-}
-
 // TODO
 //
-func (c *Config) GetAssignment(ctx context.Context, name string) (*models.Assignment, error) {
+func (c *Config) GetAssignmentByNameAssignment(ctx context.Context, name string) (*models.Assignment, error) {
 	assignment := &models.Assignment{
 		Name: name,
 	}
