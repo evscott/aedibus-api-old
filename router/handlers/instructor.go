@@ -248,7 +248,7 @@ func (c *Config) GetSubmissionResults(w http.ResponseWriter, r *http.Request) {
 // TODO
 //
 //
-func (c *Config) LeaveFeedbackOnSubmission(w http.ResponseWriter, r *http.Request) {
+func (c *Config) LeaveCommentOnSubmission(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
 	req := &models.ReqLeaveFeedback{}
