@@ -30,10 +30,18 @@ func (l *StandardLogger) ConfigError(error error) {
 	l.Fatalf(configErrorMessage.message, error)
 }
 
-func (l *StandardLogger) GalError(error error) {
-	l.Errorf(galErrorMessage.message, error)
+func (l *StandardLogger) GalError(message string, error error) {
+	l.Errorf(galErrorMessage.message, message, error)
 }
 
-func (l *StandardLogger) DalError(error error) {
-	l.Errorf(galErrorMessage.message, error)
+func (l *StandardLogger) DalError(message string, error error) {
+	l.Errorf(dalErrorMessage.message, message, error)
+}
+
+func (l *StandardLogger) UtilsError(message string, error error) {
+	l.Errorf(utilsErrorMessage.message, message, error)
+}
+
+func (l *StandardLogger) MarshError(message string, error error) {
+	l.Errorf(marshErrorMessage.message, message, error)
 }

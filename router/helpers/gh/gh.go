@@ -9,16 +9,6 @@ import (
 	"github.com/google/go-github/github"
 )
 
-type Config struct {
-	gal *github.Client
-}
-
-func Init(gal *github.Client) *Config {
-	return &Config{
-		gal: gal,
-	}
-}
-
 // TODO
 //
 func (c *Config) CreateComment(ctx context.Context, fileName, assignmentName, commitID, body string, pullRequestNumber, position int) (*github.PullRequestComment, error) {
