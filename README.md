@@ -25,6 +25,16 @@ Inside of the api root directory, run:
 docker-compose down && sudo docker-compose up --build
 ```
 
+### Clean database history
+
+Inside of the api root directory, run:
+
+```
+sudo rm -rf postgres-data
+docker volume prune
+docker rm $(docker ps -a -q)
+```
+
 ## Architecture
 
 ![uml](./assets/z3-e2c-api-UML-d1.png)
