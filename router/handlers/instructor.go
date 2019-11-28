@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/evscott/z3-e2c-api/shared/constants"
 	status "github.com/evscott/z3-e2c-api/shared/http-codes"
+	"github.com/evscott/z3-e2c-api/shared/utils"
 	"net/http"
 
 	"github.com/evscott/z3-e2c-api/models"
@@ -20,12 +21,12 @@ func (c *Config) CreateAssignment(w http.ResponseWriter, r *http.Request) {
 	instructions := r.FormValue("instructions")
 	testRunner := r.FormValue("testRunner")
 
-	instructionsContents, err := c.helpers.DB.GetFileFromForm(w, r, instructions)
+	instructionsContents, err := utils.GetFileFromForm(r, instructions)
 	if err != nil {
-		c.logger.Error(err)
+		c.logger.UtilsError("getting file from form", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
-	testRunnerContents, err := c.helpers.DB.GetFileFromForm(w, r, testRunner)
+	testRunnerContents, err := utils.GetFileFromForm(r, testRunner)
 	if err != nil {
 		c.logger.Error(err)
 		w.WriteHeader(status.Status(status.InternalServerError))
@@ -43,45 +44,45 @@ func (c *Config) CreateAssignment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := c.helpers.DB.CreateAssignment(ctx, req.AssignmentName); err != nil {
-		c.logger.Error(err)
+		c.logger.DalError("creating assignment", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
 	if err := c.helpers.DB.CreateDropbox(ctx, constants.MASTER, req.AssignmentName); err != nil {
-		c.logger.Error(err)
+		c.logger.DalError("creating dropbox", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
 	resInstructions, err := c.helpers.GH.CreateFile(ctx, assignmentName, constants.MASTER, instructions, instructionsContents)
 	if err != nil {
-		c.logger.Error(err)
+		c.logger.DalError("creating instructions file", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
 	resTestRunner, err := c.helpers.GH.CreateFile(ctx, assignmentName, constants.MASTER, testRunner, testRunnerContents)
 	if err != nil {
-		c.logger.Error(err)
+		c.logger.GalError("creating testRunner file", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
 	if err := c.helpers.DB.CreateFile(ctx, instructions, assignmentName, constants.MASTER, *resInstructions.Commit.SHA); err != nil {
-		c.logger.Error(err)
+		c.logger.DalError("creating instructions file", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
 	if err := c.helpers.DB.CreateFile(ctx, testRunner, assignmentName, constants.MASTER, *resTestRunner.Commit.SHA); err != nil {
-		c.logger.Error(err)
+		c.logger.DalError("creating testRunner file", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
 	blobSHA, err := c.helpers.GH.GetMasterBlobSha(ctx, assignmentName)
 	if err != nil {
-		c.logger.Error(err)
+		c.logger.GalError("getting blob sha", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
 	if err := c.helpers.DB.UpdateAssignmentBlob(ctx, assignmentName, *blobSHA); err != nil {
-		c.logger.Error(err)
+		c.logger.DalError("updating blob sha", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 }
@@ -96,31 +97,31 @@ func (c *Config) CreateAssignmentFile(w http.ResponseWriter, r *http.Request) {
 	dropboxName := r.FormValue("dropboxName")
 	fileName := r.FormValue("fileName")
 
-	contents, err := c.helpers.DB.GetFileFromForm(w, r, fileName)
+	contents, err := utils.GetFileFromForm(r, fileName)
 	if err != nil {
-		c.logger.Error(err)
+		c.logger.UtilsError("getting file from form", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
 	res, err := c.helpers.GH.CreateFile(ctx, assignmentName, dropboxName, fileName, contents)
 	if err != nil {
-		c.logger.Error(err)
+		c.logger.GalError("creating file", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
 	if err := c.helpers.DB.CreateFile(ctx, fileName, assignmentName, constants.MASTER, *res.Commit.SHA); err != nil {
-		c.logger.Error(err)
+		c.logger.DalError("creating file", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
 	blobSHA, err := c.helpers.GH.GetMasterBlobSha(ctx, assignmentName)
 	if err != nil {
-		c.logger.Error(err)
+		c.logger.GalError("getting blob sha", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
 	if err := c.helpers.DB.UpdateAssignmentBlob(ctx, assignmentName, *blobSHA); err != nil {
-		c.logger.Error(err)
+		c.logger.GalError("updating blob sha", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 }
@@ -135,31 +136,31 @@ func (c *Config) UpdateAssignmentFile(w http.ResponseWriter, r *http.Request) {
 	dropboxName := r.FormValue("dropboxName")
 	fileName := r.FormValue("fileName")
 
-	contents, err := c.helpers.DB.GetFileFromForm(w, r, fileName)
+	contents, err := utils.GetFileFromForm(r, fileName)
 	if err != nil {
-		c.logger.Error(err)
+		c.logger.UtilsError("getting file from form", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
 	res, err := c.helpers.GH.UpdateFile(ctx, assignmentName, dropboxName, fileName, contents)
 	if err != nil {
-		c.logger.Error(err)
+		c.logger.GalError("updating file", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
 	if err := c.helpers.DB.UpdateFile(ctx, assignmentName, dropboxName, fileName, *res.Commit.SHA); err != nil {
-		c.logger.Error(err)
+		c.logger.DalError("updating file", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
 	blobSHA, err := c.helpers.GH.GetMasterBlobSha(ctx, assignmentName)
 	if err != nil {
-		c.logger.Error(err)
+		c.logger.GalError("getting blob sha", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
 	if err := c.helpers.DB.UpdateAssignmentBlob(ctx, assignmentName, *blobSHA); err != nil {
-		c.logger.Error(err)
+		c.logger.DalError("updating blob sha", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 }
@@ -172,18 +173,18 @@ func (c *Config) GetFileContents(w http.ResponseWriter, r *http.Request) {
 
 	req := &models.ReqGetFile{}
 	if err := marsh.UnmarshalRequest(req, w, r); err != nil {
-		c.logger.Error(err)
+		c.logger.MarshError("unmarshalling request", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
 	res, err := c.helpers.GH.GetFileContents(ctx, req.FileName, req.DropboxName)
 	if err != nil {
-		c.logger.Error(err)
+		c.logger.GalError("getting file contents", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
 	if err := marsh.MarshalResponse(res, w); err != nil {
-		c.logger.Error(err)
+		c.logger.MarshError("marshalling response", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 }
@@ -197,17 +198,17 @@ func (c *Config) CreateDropbox(w http.ResponseWriter, r *http.Request) {
 	// Unmarshal create reference request
 	req := &models.ReqCreateDropbox{}
 	if err := marsh.UnmarshalRequest(req, w, r); err != nil {
-		c.logger.Error(err)
+		c.logger.MarshError("unmarshalling response", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
 	if err := c.helpers.GH.CreateDropbox(ctx, req.DropboxName, req.AssignmentName); err != nil {
-		c.logger.Error(err)
+		c.logger.GalError("creating dropbox", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
 	if err := c.helpers.DB.CreateDropbox(ctx, req.DropboxName, req.AssignmentName); err != nil {
-		c.logger.Error(err)
+		c.logger.DalError("creating dropbox", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 }
@@ -229,7 +230,7 @@ func (c *Config) GetSubmissionResults(w http.ResponseWriter, r *http.Request) {
 
 	submission, err := c.helpers.DB.GetSubmission(ctx, req.DropboxName, req.AssignmentName)
 	if err != nil {
-		c.logger.Error(err)
+		c.logger.DalError("getting submission", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
@@ -239,7 +240,7 @@ func (c *Config) GetSubmissionResults(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := marsh.MarshalResponse(res, w); err != nil {
-		c.logger.Error(err)
+		c.logger.MarshError("marshalling response", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 }
@@ -252,25 +253,25 @@ func (c *Config) LeaveFeedbackOnSubmission(w http.ResponseWriter, r *http.Reques
 
 	req := &models.ReqLeaveFeedback{}
 	if err := marsh.UnmarshalRequest(req, w, r); err != nil {
-		c.logger.Error(err)
+		c.logger.MarshError("unmarshalling request", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
 	submission, err := c.helpers.DB.GetSubmission(ctx, req.DropboxName, req.AssignmentName)
 	if err != nil {
-		c.logger.Error(err)
+		c.logger.DalError("getting submission", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
 	file, err := c.helpers.DB.GetFile(ctx, req.DropboxName, req.AssignmentName, req.FileName)
 	if err != nil {
-		c.logger.Error(err)
+		c.logger.DalError("getting file", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
 	_, err = c.helpers.GH.CreateComment(ctx, req.FileName, req.AssignmentName, file.CommitID, req.Feedback, submission.PrNumber, req.LineNumber)
 	if err != nil {
-		c.logger.Error(err)
+		c.logger.GalError("creating comment", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 }
@@ -289,13 +290,13 @@ func (c *Config) GetFeedbackOnSubmissionFile(w http.ResponseWriter, r *http.Requ
 
 	submission, err := c.helpers.DB.GetSubmission(ctx, req.DropboxName, req.AssignmentName)
 	if err != nil {
-		c.logger.Error(err)
+		c.logger.DalError("getting submission", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
 	comments, err := c.helpers.GH.GetPrComments(ctx, req.AssignmentName, submission.PrNumber)
 	if err != nil {
-		c.logger.Error(err)
+		c.logger.GalError("getting pull request comments", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
@@ -309,7 +310,7 @@ func (c *Config) GetFeedbackOnSubmissionFile(w http.ResponseWriter, r *http.Requ
 	}
 
 	if err := marsh.MarshalResponse(res, w); err != nil {
-		c.logger.Error(err)
+		c.logger.MarshError("marshalling response", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 }

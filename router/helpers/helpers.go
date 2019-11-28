@@ -23,7 +23,7 @@ func Init(dal *dal.DAL, gal *github.Client) *Config {
 	}
 }
 
-type PostgresHelpers interface {
+type DB interface {
 	GetAssignmentByName(ctx context.Context, name string) (*models.Assignment, error)
 	CreateAssignmentHelper(ctx context.Context, assignmentName string) error
 	ReceiveFileContentsHelper(w http.ResponseWriter, r *http.Request, fileName string) ([]byte, error)
@@ -33,7 +33,7 @@ type PostgresHelpers interface {
 	GetSubmissionByNameAndAssignment(ctx context.Context, submissionName, assignmentName string)
 }
 
-type GithubHelpers interface {
+type GH interface {
 	CreateComment(ctx context.Context, fileName, assignmentName, commitID, body string, position int) (*github.PullRequestComment, error)
 	CreatePullRequest(ctx context.Context, submissionName, assignmentName, title, body string) (*github.PullRequest, error)
 	CreateRepository(ctx context.Context, assignmentName string) error

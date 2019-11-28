@@ -1,11 +1,7 @@
 package db
 
 import (
-	"bytes"
 	"context"
-	"io"
-	"net/http"
-
 	"github.com/evscott/z3-e2c-api/dal"
 	"github.com/evscott/z3-e2c-api/models"
 )
@@ -43,24 +39,6 @@ func (c *Config) CreateAssignment(ctx context.Context, assignmentName string) er
 		return err
 	}
 	return nil
-}
-
-// TODO
-//
-func (c *Config) GetFileFromForm(w http.ResponseWriter, r *http.Request, fileName string) ([]byte, error) {
-	file, _, err := r.FormFile(fileName)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	// Read file contents through buffer
-	buffer := bytes.Buffer{}
-	if _, err := io.Copy(&buffer, file); err != nil {
-		return nil, err
-	}
-	defer buffer.Reset()
-	return buffer.Bytes(), nil
 }
 
 // TODO
