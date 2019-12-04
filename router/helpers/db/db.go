@@ -2,7 +2,7 @@ package db
 
 import (
 	"context"
-	"github.com/evscott/z3-e2c-api/models"
+	"github.com/evscott/aedibus-api/models"
 )
 
 // TODO

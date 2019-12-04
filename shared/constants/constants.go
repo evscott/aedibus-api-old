@@ -3,7 +3,7 @@ package constants
 /***** Misc *****/
 
 const (
-	Z3E2C     = "z3-e2c"
+	AEDIBUS   = "aedibus"
 	MASTER    = "master"
 	DB_DRIVER = "postgres"
 	README    = "README.md"

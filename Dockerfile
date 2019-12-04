@@ -14,4 +14,4 @@ RUN go build -o z3-e2c-api .
 
 EXPOSE 8080
 
-CMD ["./z3-e2c-api"]
+CMD ["./aedibus-api"]

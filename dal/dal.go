@@ -3,9 +3,9 @@ package dal
 import (
 	"database/sql"
 	"fmt"
-	"github.com/evscott/z3-e2c-api/dal/provider"
-	"github.com/evscott/z3-e2c-api/shared/constants"
-	"github.com/evscott/z3-e2c-api/shared/logger"
+	"github.com/evscott/aedibus-api/dal/provider"
+	"github.com/evscott/aedibus-api/shared/constants"
+	"github.com/evscott/aedibus-api/shared/logger"
 	"github.com/go-pg/pg/v9"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"

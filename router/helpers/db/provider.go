@@ -3,8 +3,8 @@ package db
 import (
 	"context"
 
-	"github.com/evscott/z3-e2c-api/dal"
-	"github.com/evscott/z3-e2c-api/models"
+	"github.com/evscott/aedibus-api/dal"
+	"github.com/evscott/aedibus-api/models"
 )
 
 type Config struct {

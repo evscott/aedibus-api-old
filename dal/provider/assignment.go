@@ -3,7 +3,7 @@ package provider
 import (
 	"context"
 
-	"github.com/evscott/z3-e2c-api/models"
+	"github.com/evscott/aedibus-api/models"
 )
 
 func (c *Config) CreateAssignment(ctx context.Context, assignment *models.Assignment) error {

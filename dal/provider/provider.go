@@ -2,8 +2,8 @@ package provider
 
 import (
 	"context"
-	"github.com/evscott/z3-e2c-api/models"
-	"github.com/evscott/z3-e2c-api/shared/logger"
+	"github.com/evscott/aedibus-api/models"
+	"github.com/evscott/aedibus-api/shared/logger"
 	"github.com/go-pg/pg/v9"
 )
 
