@@ -2,12 +2,12 @@ package handlers
 
 import (
 	"context"
-	"github.com/evscott/z3-e2c-api/shared/utils"
+	"github.com/evscott/aedibus-api/shared/utils"
 	"net/http"
 
-	"github.com/evscott/z3-e2c-api/models"
-	status "github.com/evscott/z3-e2c-api/shared/http-codes"
-	"github.com/evscott/z3-e2c-api/shared/marsh"
+	"github.com/evscott/aedibus-api/models"
+	status "github.com/evscott/aedibus-api/shared/http-codes"
+	"github.com/evscott/aedibus-api/shared/marsh"
 )
 
 // TODO

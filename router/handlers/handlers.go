@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"github.com/evscott/z3-e2c-api/dal"
-	"github.com/evscott/z3-e2c-api/router/helpers"
-	"github.com/evscott/z3-e2c-api/shared/logger"
+	"github.com/evscott/aedibus-api/dal"
+	"github.com/evscott/aedibus-api/router/helpers"
+	"github.com/evscott/aedibus-api/shared/logger"
 	"github.com/google/go-github/github"
 )
 

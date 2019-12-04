@@ -1,4 +1,4 @@
-# z3-e2c-api
+# aedibus-api
 
 ### Prerequisites
 
@@ -39,13 +39,13 @@ docker rm $(docker ps -a -q)
 
 ### API
 
-![uml](./assets/z3-e2c-api-UML-d1.png)
+![uml](./assets/aedibus-api-UML-d1.png)
 
 *Note: this diagram is a rough draft and omits many details*
 
 ### DB
 
-![uml](./assets/z3-e2c-db-UML-d1.png)
+![uml](./assets/aedibus-db-UML-d1.png)
 
 ## Authors
 
