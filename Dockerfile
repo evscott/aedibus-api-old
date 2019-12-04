@@ -10,7 +10,7 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o z3-e2c-api .
+RUN go build -o aedibus-api .
 
 EXPOSE 8080
 
