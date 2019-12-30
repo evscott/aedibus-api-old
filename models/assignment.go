@@ -5,8 +5,16 @@ type Assignment struct {
 	BlobSHA string `pg:"blob_sha"`
 }
 
+type Assignments []Assignment
+
 type ReqCreateAssignment struct {
 	AssignmentName       string
 	InstructionsContents []byte
 	TestRunnerContents   []byte
 }
+
+type ResGetAssignment struct {
+	Name string `json:"name"`
+}
+
+type ResGetAssignments []ResGetAssignment

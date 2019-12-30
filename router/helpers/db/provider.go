@@ -18,6 +18,7 @@ func Init(dal *dal.DAL) *Config {
 }
 
 type Provider interface {
+	GetAssignments(ctx context.Context) (models.Assignments, error)
 	GetAssignmentByNameAssignment(ctx context.Context, name string) (*models.Assignment, error)
 	CreateAssignment(ctx context.Context, assignmentName string) error
 	UpdateAssignmentBlob(ctx context.Context, assignmentName, blobSHA string) error

@@ -87,7 +87,7 @@ func (c *Config) CreateAssignment(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// TODO
+// TODOs
 //
 //
 func (c *Config) CreateAssignmentFile(w http.ResponseWriter, r *http.Request) {

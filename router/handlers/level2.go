@@ -10,6 +10,26 @@ import (
 	"github.com/evscott/aedibus-api/shared/marsh"
 )
 
+func (c *Config) GetAssignments(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+
+	assignments, err := c.helpers.DB.GetAssignments(ctx)
+	if err != nil {
+		c.logger.DalError("getting assignments from DB", err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	res := make(models.ResGetAssignments, len(assignments))
+	for i, a := range assignments {
+		res[i].Name = a.Name
+	}
+
+	if err := marsh.MarshalResponse(res, w); err != nil {
+		c.logger.MarshError("marshalling response", err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+}
+
 // TODO
 //
 //

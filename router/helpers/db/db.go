@@ -5,13 +5,22 @@ import (
 	"github.com/evscott/aedibus-api/models"
 )
 
+func (c *Config) GetAssignments(ctx context.Context) (models.Assignments, error) {
+	assignments, err := c.dal.Provider.GetAssignments(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return assignments, nil
+}
+
 // TODO
 //
 func (c *Config) GetAssignmentByNameAssignment(ctx context.Context, name string) (*models.Assignment, error) {
 	assignment := &models.Assignment{
 		Name: name,
 	}
-	if err := c.dal.Provider.GetAssignment(ctx, assignment); err != nil {
+	if err := c.dal.Provider.GetAnAssignment(ctx, assignment); err != nil {
 		return nil, err
 	}
 
