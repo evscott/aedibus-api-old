@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"github.com/evscott/aedibus-api/shared/utils"
 	"net/http"
 
@@ -21,7 +22,10 @@ func (c *Config) GetAssignments(w http.ResponseWriter, r *http.Request) {
 
 	res := make(models.ResGetAssignments, len(assignments))
 	for i, a := range assignments {
+		fmt.Printf("%v\n", a)
+		res[i].ID = a.ID
 		res[i].Name = a.Name
+		res[i].CreatedAt = a.CreatedAt
 	}
 
 	if err := marsh.MarshalResponse(res, w); err != nil {

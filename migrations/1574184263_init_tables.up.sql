@@ -1,9 +1,11 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE IF NOT EXISTS Assignments (
+    id uuid DEFAULT uuid_generate_v1(),
     name varchar (255) UNIQUE,
     blob_sha varchar(40),
-    PRIMARY KEY (name)
+    created_at timestamp DEFAULT now(),
+    PRIMARY KEY (id, name)
 );
 
 CREATE TABLE IF NOT EXISTS Dropboxes (
@@ -26,5 +28,6 @@ CREATE TABLE IF NOT EXISTS Submissions (
     pr_number smallint,
     tests_ran smallint,
     tests_passed smallint,
+    created_at timestamp DEFAULT now(),
     PRIMARY KEY (assignment_name, dropbox_name)
 );
