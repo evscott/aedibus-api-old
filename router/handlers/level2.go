@@ -3,13 +3,34 @@ package handlers
 import (
 	"context"
 	"fmt"
-	"github.com/evscott/aedibus-api/shared/utils"
 	"net/http"
 
 	"github.com/evscott/aedibus-api/models"
 	status "github.com/evscott/aedibus-api/shared/http-codes"
 	"github.com/evscott/aedibus-api/shared/marsh"
+	"github.com/evscott/aedibus-api/shared/utils"
 )
+
+// TODO
+//
+//
+func (c *Config) GetReadme(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+
+	keys := r.URL.Query()
+	assignmentName := keys.Get("assignmentName")
+
+	README, err := c.helpers.GH.GetReadme(ctx, assignmentName)
+	if err != nil {
+		c.logger.GalError("getting README", err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	if err := marsh.MarshalResponse(README, w); err != nil {
+		c.logger.MarshError("marshalling response", err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+}
 
 func (c *Config) GetAssignments(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()

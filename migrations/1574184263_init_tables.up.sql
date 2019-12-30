@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS Assignments (
 );
 
 CREATE TABLE IF NOT EXISTS Dropboxes (
-    name varchar (255) UNIQUE NOT NULL,
+    name varchar (255) NOT NULL,
     assignment_name varchar (255) REFERENCES Assignments(name) NOT NULL,
     PRIMARY KEY (name, assignment_name)
 );

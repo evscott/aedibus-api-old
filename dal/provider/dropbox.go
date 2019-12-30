@@ -21,6 +21,6 @@ func (c *Config) MarkSubmitted(ctx context.Context, dropbox *models.Dropbox) err
 		Model(dropbox).
 		WherePK().
 		Set("submitted = ?", true).
-		Update()
+		UpdateNotZero()
 	return err
 }

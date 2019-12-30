@@ -46,7 +46,7 @@ func (c *Config) UpdateAssignmentBlob(ctx context.Context, assignmentName, blobS
 		Name:    assignmentName,
 		BlobSHA: blobSHA,
 	}
-	return c.dal.Provider.UpdateAssignment(ctx, assignment)
+	return c.dal.Provider.UpdateAssignmentByName(ctx, assignment)
 }
 
 // TODO

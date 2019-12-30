@@ -102,9 +102,9 @@ func (c *Config) UpdateFile(ctx context.Context, assignmentName, dropboxName, fi
 // TODO
 //
 //
-func (c *Config) GetReadme(ctx context.Context, assignmentName, dropboxName string) (*models.ResGetFile, error) {
+func (c *Config) GetReadme(ctx context.Context, assignmentName string) (*models.ResGetFile, error) {
 	// Get blob sha of file from GithubHelpers to be used as target of update
-	getOptions := github.RepositoryContentGetOptions{Ref: fmt.Sprintf("heads/%s", dropboxName)}
+	getOptions := github.RepositoryContentGetOptions{Ref: fmt.Sprintf("heads/%s", consts.MASTER)}
 	fileContent, _, err := c.gal.Repositories.GetReadme(ctx, consts.AEDIBUS, assignmentName, &getOptions)
 	if err != nil {
 		return nil, err
@@ -116,7 +116,7 @@ func (c *Config) GetReadme(ctx context.Context, assignmentName, dropboxName stri
 
 	res := &models.ResGetFile{
 		FileName:    assignmentName,
-		DropboxName: dropboxName,
+		DropboxName: consts.MASTER,
 		Content:     content,
 	}
 
