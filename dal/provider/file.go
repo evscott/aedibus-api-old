@@ -20,6 +20,6 @@ func (c *Config) UpdateFile(ctx context.Context, file *models.File) error {
 	_, err := c.db.Model(file).
 		WherePK().
 		Set("commit_id = ?", file.CommitID).
-		Update()
+		UpdateNotZero()
 	return err
 }

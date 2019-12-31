@@ -6,16 +6,17 @@ type Resource string
 
 /***** API Resources *****/
 const (
-	Student    Resource = "/student"
-	Instructor Resource = "/instructor"
-	Assignment Resource = "/assignment"
-	Dropbox    Resource = "/dropbox"
-	Submit     Resource = "/submit"
-	Submission Resource = "/submission"
-	File       Resource = "/file"
-	Contents   Resource = "/contents"
-	Readme     Resource = "/readme"
-	Feedback   Resource = "/feedback"
+	Student     Resource = "/student"
+	Instructor  Resource = "/instructor"
+	Assignment  Resource = "/assignment"
+	Assignments Resource = "/assignments"
+	Dropbox     Resource = "/dropbox"
+	Submit      Resource = "/submit"
+	Submission  Resource = "/submission"
+	File        Resource = "/file"
+	Contents    Resource = "/contents"
+	Readme      Resource = "/readme"
+	Feedback    Resource = "/feedback"
 )
 
 /***** HTTP Methods *****/

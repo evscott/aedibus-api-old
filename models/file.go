@@ -1,16 +1,19 @@
 package models
 
+import "github.com/go-pg/pg/v9"
+
 type File struct {
-	Name           string `pg:"name,pk"`
-	AssignmentName string `pg:"assignment_name,pk"`
-	DropboxName    string `pg:"dropbox_name,pk"`
-	CommitID       string `pg:"commit_id"`
+	ID        string       `pg:"id,pk"`
+	Name      string       `pg:"name,fk"`
+	AID       string       `pg:"aid,fk"`
+	DID       string       `pg:"did,fk"`
+	CommitID  string       `pg:"commit_id"`
+	CreatedAt *pg.NullTime `pg:"created_at"`
 }
 
 type ReqGetFile struct {
 	FileName       string `json:"fileName"`
 	AssignmentName string `json:"assignmentName"`
-	DropboxName    string `json:"dropboxName"`
 }
 
 type ResGetFile struct {

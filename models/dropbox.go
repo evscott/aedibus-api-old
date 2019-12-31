@@ -1,17 +1,18 @@
 package models
 
 type Dropbox struct {
-	Name           string `pg:"name,pk"`
-	AssignmentName string `pg:"assignment_name,pk"`
+	ID   string `pg:"id"`
+	Name string `pg:"name"`
+	AID  string `pg:"aid"`
 }
 
 type ReqCreateDropbox struct {
-	DropboxName    string `json:"dropboxName"`
-	AssignmentName string `json:"assignmentName"`
+	DropboxName string `json:"dropboxName"`
+	AID         string `json:"aid"`
 }
 
 type ReqPullRequest struct {
-	DropboxName    string `json:"dropboxName"`
-	AssignmentName string `json:"assignmentName"`
-	Body           string `json:"body"`
+	DID  string `json:"did"`
+	AID  string `json:"aid"`
+	Body string `json:"body"`
 }

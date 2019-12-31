@@ -12,7 +12,6 @@ import (
 	"github.com/evscott/aedibus-api/shared/logger"
 	"github.com/google/go-github/github"
 	"github.com/gorilla/mux"
-	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 	"golang.org/x/oauth2"
 )
@@ -48,11 +47,7 @@ func Init(ctx context.Context, router *mux.Router) *Config {
 
 	/*****  Setup z3-12c-api specifications *****/
 	spec := Specifications{}
-	// Load environment variables from .env if found
-	err := godotenv.Load()
-	if err != nil {
-		log.ConfigError(err)
-	}
+
 	if err := envconfig.Process("Z3", &spec); err != nil {
 		log.ConfigError(err)
 	}
