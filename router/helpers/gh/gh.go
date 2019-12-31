@@ -115,9 +115,10 @@ func (c *Config) GetReadme(ctx context.Context, assignmentName string) (*models.
 	}
 
 	res := &models.ResGetFile{
-		FileName:    assignmentName,
-		DropboxName: consts.MASTER,
-		Content:     content,
+		AssignmentName: assignmentName,
+		FileName:       consts.README,
+		DropboxName:    consts.MASTER,
+		Content:        content,
 	}
 
 	return res, nil
@@ -126,10 +127,10 @@ func (c *Config) GetReadme(ctx context.Context, assignmentName string) (*models.
 // TODO
 //
 //
-func (c *Config) GetFileContents(ctx context.Context, assignmentName, dropboxName string) (*models.ResGetFile, error) {
+func (c *Config) GetFileContents(ctx context.Context, fileName, assignmentName string) (*models.ResGetFile, error) {
 	// Get blob sha of file from GithubHelpers to be used as target of update
-	getOptions := github.RepositoryContentGetOptions{Ref: fmt.Sprintf("heads/%s", dropboxName)}
-	fileContent, _, _, err := c.gal.Repositories.GetContents(ctx, consts.AEDIBUS, assignmentName, dropboxName, &getOptions)
+	getOptions := github.RepositoryContentGetOptions{Ref: fmt.Sprintf("heads/%s", consts.MASTER)}
+	fileContent, _, _, err := c.gal.Repositories.GetContents(ctx, consts.AEDIBUS, assignmentName, consts.MASTER, &getOptions)
 	if err != nil {
 		return nil, err
 	}
@@ -139,8 +140,8 @@ func (c *Config) GetFileContents(ctx context.Context, assignmentName, dropboxNam
 	}
 
 	res := &models.ResGetFile{
-		FileName:    assignmentName,
-		DropboxName: dropboxName,
+		FileName:    fileName,
+		DropboxName: consts.MASTER,
 		Content:     content,
 	}
 

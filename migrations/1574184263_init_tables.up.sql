@@ -1,7 +1,7 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE IF NOT EXISTS Assignments (
-    id uuid DEFAULT uuid_generate_v1(),
+    id uuid DEFAULT uuid_generate_v1() UNIQUE,
     name varchar (255) UNIQUE,
     blob_sha varchar(40),
     created_at timestamp DEFAULT now(),
@@ -9,25 +9,37 @@ CREATE TABLE IF NOT EXISTS Assignments (
 );
 
 CREATE TABLE IF NOT EXISTS Dropboxes (
+    id uuid DEFAULT uuid_generate_v1() UNIQUE,
     name varchar (255) NOT NULL,
-    assignment_name varchar (255) REFERENCES Assignments(name) NOT NULL,
-    PRIMARY KEY (name, assignment_name)
+    aid uuid REFERENCES Assignments(id) NOT NULL,
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS Files (
+    id uuid DEFAULT uuid_generate_v1() UNIQUE,
     name varchar(255) NOT NULL,
-    assignment_name varchar (255) REFERENCES Assignments(name) NOT NULL,
-    dropbox_name varchar (255) REFERENCES Dropboxes(name) NOT NULL,
+    aid uuid REFERENCES Assignments(id) NOT NULL,
+    did uuid REFERENCES Dropboxes(id) NOT NULL,
     commit_id varchar(40) NOT NULL,
-    PRIMARY KEY (name, assignment_name, dropbox_name)
+    created_at timestamp DEFAULT now(),
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS Submissions (
-    assignment_name varchar (255) REFERENCES Assignments(name) NOT NULL,
-    dropbox_name varchar (255) REFERENCES Dropboxes(name) NOT NULL,
+    id uuid DEFAULT uuid_generate_v1() UNIQUE,
+    aid uuid REFERENCES Assignments(id) NOT NULL,
+    did uuid REFERENCES Dropboxes(id) NOT NULL,
     pr_number smallint,
+    created_at timestamp DEFAULT now(),
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS Submission_Results (
+    id uuid DEFAULT uuid_generate_v1() UNIQUE,
+    sid uuid REFERENCES Submissions(id) NOT NULL,
     tests_ran smallint,
     tests_passed smallint,
+    reviewed boolean,
     created_at timestamp DEFAULT now(),
-    PRIMARY KEY (assignment_name, dropbox_name)
+    PRIMARY KEY (id)
 );

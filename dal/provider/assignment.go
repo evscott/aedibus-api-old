@@ -9,9 +9,9 @@ func (c *Config) CreateAssignment(ctx context.Context, assignment *models.Assign
 	return c.db.Insert(assignment)
 }
 
-func (c *Config) UpdateAssignmentByName(ctx context.Context, assignment *models.Assignment) error {
+func (c *Config) UpdateAssignment(ctx context.Context, assignment *models.Assignment) error {
 	_, err := c.db.Model(assignment).
-		Where("name = ?", assignment.Name).
+		WherePK().
 		UpdateNotZero()
 	return err
 }

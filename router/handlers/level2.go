@@ -22,7 +22,7 @@ func (c *Config) GetReadme(w http.ResponseWriter, r *http.Request) {
 
 	README, err := c.helpers.GH.GetReadme(ctx, assignmentName)
 	if err != nil {
-		c.logger.GalError("getting README", err)
+		c.logger.GalError("getting README.md from Github", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
@@ -43,7 +43,6 @@ func (c *Config) GetAssignments(w http.ResponseWriter, r *http.Request) {
 
 	res := make(models.ResGetAssignments, len(assignments))
 	for i, a := range assignments {
-		fmt.Printf("%v\n", a)
 		res[i].ID = a.ID
 		res[i].Name = a.Name
 		res[i].CreatedAt = a.CreatedAt
@@ -105,13 +104,13 @@ func (c *Config) SubmitAssignment(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	res, err := c.helpers.GH.CreatePullRequest(ctx, req.DropboxName, req.AssignmentName, req.DropboxName, req.Body)
+	res, err := c.helpers.GH.CreatePullRequest(ctx, req.DID, req.AID, req.DID, req.Body)
 	if err != nil {
 		c.logger.GalError("creating pull request", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	if err := c.helpers.DB.CreateSubmission(ctx, req.DropboxName, req.AssignmentName, *res.Number); err != nil {
+	if err := c.helpers.DB.CreateSubmission(ctx, req.DID, req.AID, *res.Number); err != nil {
 		c.logger.DalError("creating submission", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}

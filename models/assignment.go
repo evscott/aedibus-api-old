@@ -14,9 +14,8 @@ type Assignment struct {
 type Assignments []Assignment
 
 type ReqCreateAssignment struct {
-	AssignmentName       string
-	InstructionsContents []byte
-	TestRunnerContents   []byte
+	AssignmentName string
+	ReadmeContents []byte
 }
 
 type ResGetAssignment struct {

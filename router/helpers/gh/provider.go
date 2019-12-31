@@ -23,7 +23,7 @@ type Provider interface {
 	CreateFile(ctx context.Context, assignmentName, dropboxName, fileName string, contents []byte) (*github.RepositoryContentResponse, error)
 	UpdateFile(ctx context.Context, assignmentName, dropboxName, fileName string, newContents []byte) (*github.RepositoryContentResponse, error)
 	GetReadme(ctx context.Context, assignmentName string) (*models.ResGetFile, error)
-	GetFileContents(ctx context.Context, assignmentName, dropboxName string) (*models.ResGetFile, error)
+	GetFileContents(ctx context.Context, fileName, assignmentName string) (*models.ResGetFile, error)
 	CreateDropbox(ctx context.Context, dropboxName, assignmentName string) error
 	GetMasterBlobSha(ctx context.Context, assignmentName string) (*string, error)
 	GetPrComments(ctx context.Context, assignmentName string, prNumber int) ([]*github.PullRequestComment, error)

@@ -29,98 +29,98 @@ func (c *Config) GetAssignmentByNameAssignment(ctx context.Context, name string)
 
 // TODO
 //
-func (c *Config) CreateAssignment(ctx context.Context, assignmentName string) error {
+func (c *Config) CreateAssignment(ctx context.Context, assignmentName string) (*models.Assignment, error) {
 	assignment := &models.Assignment{
 		Name: assignmentName,
 	}
 	if err := c.dal.Provider.CreateAssignment(ctx, assignment); err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return assignment, nil
 }
 
 // TODO
 //
-func (c *Config) UpdateAssignmentBlob(ctx context.Context, assignmentName, blobSHA string) error {
+func (c *Config) UpdateAssignmentBlob(ctx context.Context, aid, blobSHA string) error {
 	assignment := &models.Assignment{
-		Name:    assignmentName,
+		ID:      aid,
 		BlobSHA: blobSHA,
 	}
-	return c.dal.Provider.UpdateAssignmentByName(ctx, assignment)
+	return c.dal.Provider.UpdateAssignment(ctx, assignment)
 }
 
 // TODO
 //
 func (c *Config) UpdateFile(ctx context.Context, assignmentName, dropboxName, fileName, commitID string) error {
 	file := &models.File{
-		Name:           fileName,
-		AssignmentName: assignmentName,
-		DropboxName:    dropboxName,
-		CommitID:       commitID,
+		Name:     fileName,
+		AID:      assignmentName,
+		DID:      dropboxName,
+		CommitID: commitID,
 	}
 	return c.dal.Provider.UpdateFile(ctx, file)
 }
 
 // TODO
 //
-func (c *Config) CreateFile(ctx context.Context, fileName, assignmentName, dropboxName, commitID string) error {
+func (c *Config) CreateFile(ctx context.Context, fileName, aid, did, commitID string) error {
 	file := &models.File{
-		Name:           fileName,
-		AssignmentName: assignmentName,
-		DropboxName:    dropboxName,
-		CommitID:       commitID,
+		Name:     fileName,
+		AID:      aid,
+		DID:      did,
+		CommitID: commitID,
 	}
 	return c.dal.Provider.CreateFile(ctx, file)
 }
 
 // TODO
 //
-func (c *Config) CreateDropbox(ctx context.Context, dropboxName, assignmentName string) error {
+func (c *Config) CreateDropbox(ctx context.Context, dropboxName, aid string) (*models.Dropbox, error) {
 	dropbox := &models.Dropbox{
-		Name:           dropboxName,
-		AssignmentName: assignmentName,
+		Name: dropboxName,
+		AID:  aid,
 	}
-	return c.dal.Provider.CreateDropbox(ctx, dropbox)
+	return dropbox, c.dal.Provider.CreateDropbox(ctx, dropbox)
 }
 
 // TODO
 //
-func (c *Config) GetDropboxByNameAndAssignment(ctx context.Context, dropboxName, assignmentName string) (*models.Dropbox, error) {
+func (c *Config) GetDropboxByNameAndAssignment(ctx context.Context, dropboxName, aid string) (*models.Dropbox, error) {
 	dropbox := &models.Dropbox{
-		Name:           dropboxName,
-		AssignmentName: assignmentName,
+		Name: dropboxName,
+		AID:  aid,
 	}
 	return dropbox, c.dal.Provider.GetDropboxByNameAndAssignment(ctx, dropbox)
 }
 
 // TODO
 //
-func (c *Config) CreateSubmission(ctx context.Context, dropboxName, assignmentName string, prNumber int) error {
+func (c *Config) CreateSubmission(ctx context.Context, did, aid string, prNumber int) error {
 	submission := &models.Submission{
-		AssignmentName: assignmentName,
-		DropboxName:    dropboxName,
-		PrNumber:       prNumber,
+		AID:      aid,
+		DID:      did,
+		PrNumber: prNumber,
 	}
 	return c.dal.Provider.CreateSubmission(ctx, submission)
 }
 
 // TODO
 //
-func (c *Config) GetSubmission(ctx context.Context, dropboxName, assignmentName string) (*models.Submission, error) {
+func (c *Config) GetSubmission(ctx context.Context, did, aid string) (*models.Submission, error) {
 	submission := &models.Submission{
-		AssignmentName: assignmentName,
-		DropboxName:    dropboxName,
+		AID: aid,
+		DID: did,
 	}
 	return submission, c.dal.Provider.GetSubmission(ctx, submission)
 }
 
 // TODO
 //
-func (c *Config) GetFile(ctx context.Context, dropboxName, assignmentName, fileName string) (*models.File, error) {
+func (c *Config) GetFile(ctx context.Context, did, aid, fileName string) (*models.File, error) {
 	file := &models.File{
-		Name:           fileName,
-		AssignmentName: assignmentName,
-		DropboxName:    dropboxName,
+		Name: fileName,
+		AID:  aid,
+		DID:  did,
 	}
 	return file, c.dal.Provider.GetFile(ctx, file)
 }
