@@ -14,8 +14,8 @@ type Assignment struct {
 type Assignments []Assignment
 
 type ReqCreateAssignment struct {
-	AssignmentName string
-	ReadmeContents []byte
+	AssignmentName string `json:"assignmentName"`
+	ReadmeContents string `json:"readmeContents"`
 }
 
 type ResGetAssignment struct {

@@ -33,7 +33,6 @@ func (c *Config) GetReadme(w http.ResponseWriter, r *http.Request) {
 
 func (c *Config) GetAssignments(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
-
 	assignments, err := c.helpers.DB.GetAssignments(ctx)
 	if err != nil {
 		c.logger.DalError("getting assignments from DB", err)

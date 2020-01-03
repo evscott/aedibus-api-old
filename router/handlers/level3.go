@@ -17,16 +17,10 @@ import (
 func (c *Config) CreateAssignment(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
-	assignmentName := r.FormValue("assignmentName")
-	readmeContents, err := utils.GetFileFromForm(r, consts.README)
-	if err != nil {
-		c.logger.UtilsError("getting file from form", err)
+	req := &models.ReqCreateAssignment{}
+	if err := marsh.UnmarshalRequest(req, w, r); err != nil {
+		c.logger.MarshError("unmarshalling request", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
-	}
-
-	req := &models.ReqCreateAssignment{
-		AssignmentName: assignmentName,
-		ReadmeContents: readmeContents,
 	}
 
 	if err := c.helpers.GH.CreateRepository(ctx, req.AssignmentName); err != nil {
@@ -46,7 +40,7 @@ func (c *Config) CreateAssignment(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	res, err := c.helpers.GH.CreateFile(ctx, assignment.Name, consts.MASTER, consts.README, readmeContents)
+	res, err := c.helpers.GH.CreateFile(ctx, assignment.Name, consts.MASTER, consts.README, []byte(req.ReadmeContents))
 	if err != nil {
 		c.logger.DalError("creating readme file on Github", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
@@ -67,6 +61,8 @@ func (c *Config) CreateAssignment(w http.ResponseWriter, r *http.Request) {
 		c.logger.DalError("updating blob sha in database", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
+
+	w.WriteHeader(status.Status(status.OK))
 }
 
 // TODOs
@@ -106,6 +102,8 @@ func (c *Config) CreateAssignmentFile(w http.ResponseWriter, r *http.Request) {
 		c.logger.GalError("updating blob sha", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
+
+	w.WriteHeader(status.Status(status.OK))
 }
 
 // TODO
@@ -130,6 +128,8 @@ func (c *Config) GetFileContents(w http.ResponseWriter, r *http.Request) {
 		c.logger.MarshError("marshalling response", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
+
+	w.WriteHeader(status.Status(status.OK))
 }
 
 // TODO
@@ -154,4 +154,6 @@ func (c *Config) CreateDropbox(w http.ResponseWriter, r *http.Request) {
 		c.logger.DalError("creating dropbox", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
+
+	w.WriteHeader(status.Status(status.OK))
 }

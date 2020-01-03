@@ -16,6 +16,8 @@ services:
       - 5432:5432
     networks:
       - aedibus-net
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
 
   aedibus-api:
     container_name: aedibus-api
