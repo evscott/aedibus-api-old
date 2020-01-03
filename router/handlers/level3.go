@@ -78,6 +78,19 @@ func (c *Config) DeleteAssignment(w http.ResponseWriter, r *http.Request) {
 		c.logger.DalError("deleting repository", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
+
+	assignment, err := c.helpers.DB.GetAssignmentByName(ctx, req.AssignmentName)
+	if err != nil {
+		c.logger.DalError("Getting assignment by name", err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	if err := c.helpers.DB.DeleteAssignment(ctx, assignment); err != nil {
+		c.logger.DalError("Deleting assignment", err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	w.WriteHeader(status.Status(status.OK))
 }
 
 // TODOs
