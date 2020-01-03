@@ -65,6 +65,21 @@ func (c *Config) CreateAssignment(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(status.Status(status.OK))
 }
 
+func (c *Config) DeleteAssignment(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+
+	req := &models.ReqDeleteAssignment{}
+	if err := marsh.UnmarshalRequest(req, w, r); err != nil {
+		c.logger.MarshError("unmarshalling request", err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	if err := c.helpers.GH.DeleteRepository(ctx, req.AssignmentName); err != nil {
+		c.logger.DalError("deleting repository", err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+}
+
 // TODOs
 //
 //

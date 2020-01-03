@@ -38,4 +38,5 @@ func (c *Config) level2() {
 
 func (c *Config) level3() {
 	c.Router.HandleFunc(Path(Assignment), c.Handlers.CreateAssignment).Methods(POST)
+	c.Router.HandleFunc(Path(Assignment), c.Handlers.DeleteAssignment).Methods(DELETE)
 }

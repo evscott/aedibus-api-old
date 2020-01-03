@@ -28,7 +28,7 @@ services:
       dockerfile: Dockerfile
     environment:
       GET_HOSTS_FROM: dns
-      Z3_GITHUBACCESSTOKEN: 7edf9968af97ac2a755ddc70fcacf8e1213d077d
+      Z3_GITHUBACCESSTOKEN: 4512d056d332933b6d7c5f777813b70f23293e34
       DB_HOST: db
       DB_PORT: 5432
       DB_USER: user

@@ -25,3 +25,7 @@ type ResGetAssignment struct {
 }
 
 type ResGetAssignments []ResGetAssignment
+
+type ReqDeleteAssignment struct {
+	AssignmentName string `json:"assignmentName"`
+}

@@ -20,6 +20,7 @@ type Provider interface {
 	CreateComment(ctx context.Context, fileName, assignmentName, commitID, body string, pullRequestNumber, position int) (*github.PullRequestComment, error)
 	CreatePullRequest(ctx context.Context, dropboxName, assignmentName, title, body string) (*github.PullRequest, error)
 	CreateRepository(ctx context.Context, assignmentName string) error
+	DeleteRepository(ctx context.Context, assignmentName string) error
 	CreateFile(ctx context.Context, assignmentName, dropboxName, fileName string, contents []byte) (*github.RepositoryContentResponse, error)
 	UpdateFile(ctx context.Context, assignmentName, dropboxName, fileName string, newContents []byte) (*github.RepositoryContentResponse, error)
 	GetReadme(ctx context.Context, assignmentName string) (*models.ResGetFile, error)

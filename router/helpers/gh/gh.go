@@ -59,6 +59,15 @@ func (c *Config) CreateRepository(ctx context.Context, assignmentName string) er
 
 // TODO
 //
+func (c *Config) DeleteRepository(ctx context.Context, assignmentName string) error {
+	if _, err := c.gal.Repositories.Delete(ctx, consts.AEDIBUS, assignmentName); err != nil {
+		return err
+	}
+	return nil
+}
+
+// TODO
+//
 func (c *Config) CreateFile(ctx context.Context, assignmentName, dropboxName, fileName string, contents []byte) (*github.RepositoryContentResponse, error) {
 	fileOptions := github.RepositoryContentFileOptions{
 		Message: utils.String("Uploading file"),
