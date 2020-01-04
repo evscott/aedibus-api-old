@@ -4,7 +4,6 @@ import (
 	"context"
 	consts "github.com/evscott/aedibus-api/shared/constants"
 	status "github.com/evscott/aedibus-api/shared/http-codes"
-	"github.com/evscott/aedibus-api/shared/utils"
 	"net/http"
 
 	"github.com/evscott/aedibus-api/models"
@@ -62,6 +61,8 @@ func (c *Config) CreateAssignment(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
+	// Create dropboxes if names specified
+
 	w.WriteHeader(status.Status(status.OK))
 }
 
@@ -93,40 +94,36 @@ func (c *Config) DeleteAssignment(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(status.Status(status.OK))
 }
 
-// TODOs
+// TODO
 //
 //
-func (c *Config) CreateAssignmentFile(w http.ResponseWriter, r *http.Request) {
+func (c *Config) CreateFile(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
-	assignmentName := r.FormValue("assignmentName")
-	dropboxName := r.FormValue("dropboxName")
-	fileName := r.FormValue("fileName")
-
-	contents, err := utils.GetFileFromForm(r, fileName)
-	if err != nil {
-		c.logger.UtilsError("getting file from form", err)
+	req := &models.ReqCreateFile{}
+	if err := marsh.UnmarshalRequest(req, w, r); err != nil {
+		c.logger.MarshError("unmarshalling request", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	res, err := c.helpers.GH.CreateFile(ctx, assignmentName, dropboxName, fileName, contents)
+	res, err := c.helpers.GH.CreateFile(ctx, req.AssignmentName, req.DropboxName, req.FileName, []byte(req.Content))
 	if err != nil {
 		c.logger.GalError("creating file", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	if err := c.helpers.DB.CreateFile(ctx, fileName, assignmentName, consts.MASTER, *res.Commit.SHA); err != nil {
+	if err := c.helpers.DB.CreateFile(ctx, req.FileName, req.AssignmentName, consts.MASTER, *res.Commit.SHA); err != nil {
 		c.logger.DalError("creating file", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	blobSHA, err := c.helpers.GH.GetMasterBlobSha(ctx, assignmentName)
+	blobSHA, err := c.helpers.GH.GetMasterBlobSha(ctx, req.AssignmentName)
 	if err != nil {
 		c.logger.GalError("getting blob sha", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	if err := c.helpers.DB.UpdateAssignmentBlob(ctx, assignmentName, *blobSHA); err != nil {
+	if err := c.helpers.DB.UpdateAssignmentBlob(ctx, req.AssignmentName, *blobSHA); err != nil {
 		c.logger.GalError("updating blob sha", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
@@ -173,15 +170,55 @@ func (c *Config) CreateDropbox(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	if err := c.helpers.GH.CreateDropbox(ctx, req.DropboxName, req.AID); err != nil {
-		c.logger.GalError("creating dropbox", err)
+	assignment, err := c.helpers.DB.GetAssignmentByName(ctx, req.AssignmentName)
+	if err != nil {
+		c.logger.DalError("getting assignment", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	if _, err := c.helpers.DB.CreateDropbox(ctx, req.DropboxName, req.AID); err != nil {
-		c.logger.DalError("creating dropbox", err)
-		w.WriteHeader(status.Status(status.InternalServerError))
+	for _, dropboxName := range req.DropboxName {
+		if err := c.helpers.GH.CreateDropbox(ctx, dropboxName, assignment.Name); err != nil {
+			c.logger.GalError("creating branch", err)
+			w.WriteHeader(status.Status(status.InternalServerError))
+		}
+
+		if _, err := c.helpers.DB.CreateDropbox(ctx, dropboxName, assignment.ID); err != nil {
+			c.logger.DalError("creating dropbox", err)
+			w.WriteHeader(status.Status(status.InternalServerError))
+		}
 	}
 
 	w.WriteHeader(status.Status(status.OK))
+}
+
+// TODO
+//
+//
+func (c *Config) GetDropboxes(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+
+	keys := r.URL.Query()
+	assignmentName := keys.Get("assignmentName")
+
+	assignment, err := c.helpers.DB.GetAssignmentByName(ctx, assignmentName)
+	if err != nil {
+		c.logger.DalError("getting assignment", err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	dropboxes, err := c.helpers.DB.GetDropboxes(ctx, assignment.ID)
+	if err != nil {
+		c.logger.DalError("getting dropboxes", err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	res := &models.ResGetDropboxes{
+		Count:     len(dropboxes),
+		Dropboxes: dropboxes,
+	}
+
+	if err := marsh.MarshalResponse(res, w); err != nil {
+		c.logger.MarshError("marshalling response", err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
 }

@@ -6,9 +6,16 @@ type Dropbox struct {
 	AID  string `pg:"aid"`
 }
 
+type Dropboxes []Dropbox
+
 type ReqCreateDropbox struct {
-	DropboxName string `json:"dropboxName"`
-	AID         string `json:"aid"`
+	AssignmentName string   `json:"assignmentName"`
+	DropboxName    []string `json:"dropboxName"`
+}
+
+type ResGetDropboxes struct {
+	Count     int       `json:"count"`
+	Dropboxes Dropboxes `json:"dropboxes"`
 }
 
 type ReqPullRequest struct {

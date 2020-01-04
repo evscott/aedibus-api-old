@@ -34,9 +34,12 @@ func (c *Config) level1() {
 func (c *Config) level2() {
 	c.Router.HandleFunc(Path(Readme), c.Handlers.GetReadme).Methods(GET)
 	c.Router.HandleFunc(Path(Assignments), c.Handlers.GetAssignments).Methods(GET)
+	c.Router.HandleFunc(Path(File), c.Handlers.CreateFile).Methods(POST)
 }
 
 func (c *Config) level3() {
 	c.Router.HandleFunc(Path(Assignment), c.Handlers.CreateAssignment).Methods(POST)
 	c.Router.HandleFunc(Path(Assignment), c.Handlers.DeleteAssignment).Methods(DELETE)
+	c.Router.HandleFunc(Path(Dropbox), c.Handlers.CreateDropbox).Methods(POST)
+	c.Router.HandleFunc(Path(Dropboxes), c.Handlers.GetDropboxes).Methods(GET)
 }
