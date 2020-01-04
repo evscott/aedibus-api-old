@@ -40,7 +40,7 @@ func (c *Config) CreateAssignment(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	res, err := c.helpers.GH.CreateFile(ctx, assignment.Name, consts.MASTER, consts.README, []byte(req.ReadmeContents))
+	res, err := c.helpers.GH.CreateFile(ctx, assignment.Name, consts.MASTER, consts.README, []byte(req.ReadmeContent))
 	if err != nil {
 		c.logger.DalError("creating readme file on Github", err)
 		w.WriteHeader(status.Status(status.InternalServerError))

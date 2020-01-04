@@ -15,13 +15,14 @@ type Assignments []Assignment
 
 type ReqCreateAssignment struct {
 	AssignmentName string `json:"assignmentName"`
-	ReadmeContents string `json:"readmeContents"`
+	ReadmeContent  string `json:"readmeContent"`
 }
 
 type ResGetAssignment struct {
-	ID        string       `json:"id"`
-	Name      string       `json:"name"`
-	CreatedAt *pg.NullTime `json:"createdAt"`
+	ID            string       `json:"id"`
+	Name          string       `json:"name"`
+	ReadmeContent string       `json:"readmeContent"`
+	CreatedAt     *pg.NullTime `json:"createdAt"`
 }
 
 type ResGetAssignments []ResGetAssignment
