@@ -22,6 +22,10 @@ func (c *Config) CreateAssignment(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
+	//
+	// Create record of assignment on Github and in database
+	//
+
 	if err := c.helpers.GH.CreateRepository(ctx, req.AssignmentName); err != nil {
 		c.logger.GalError("creating assignment (repository) on Github", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
@@ -33,11 +37,19 @@ func (c *Config) CreateAssignment(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
+	//
+	// Create assignment master branch
+	//
+
 	dropbox, err := c.helpers.DB.CreateDropbox(ctx, consts.MASTER, assignment.ID)
 	if err != nil {
 		c.logger.DalError("creating dropbox in database", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
+
+	//
+	// Create record of README on Github and in database
+	//
 
 	res, err := c.helpers.GH.CreateFile(ctx, assignment.Name, consts.MASTER, consts.README, []byte(req.ReadmeContent))
 	if err != nil {
@@ -50,6 +62,10 @@ func (c *Config) CreateAssignment(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
+	//
+	// Update stupid blob sha as Github requires
+	//
+
 	blobSHA, err := c.helpers.GH.GetMasterBlobSha(ctx, assignment.Name)
 	if err != nil {
 		c.logger.GalError("getting blob sha from Github", err)
@@ -61,7 +77,21 @@ func (c *Config) CreateAssignment(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	// Create dropboxes if names specified
+	//
+	// Create dropboxes if dropbox names are provided
+	//
+
+	for _, dropboxName := range req.DropboxNames {
+		if err := c.helpers.GH.CreateDropbox(ctx, dropboxName, assignment.Name); err != nil {
+			c.logger.GalError("creating branch", err)
+			w.WriteHeader(status.Status(status.InternalServerError))
+		}
+
+		if _, err := c.helpers.DB.CreateDropbox(ctx, dropboxName, assignment.ID); err != nil {
+			c.logger.DalError("creating dropbox", err)
+			w.WriteHeader(status.Status(status.InternalServerError))
+		}
+	}
 
 	w.WriteHeader(status.Status(status.OK))
 }
@@ -106,16 +136,44 @@ func (c *Config) CreateFile(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	res, err := c.helpers.GH.CreateFile(ctx, req.AssignmentName, req.DropboxName, req.FileName, []byte(req.Content))
+	//
+	// Create record of file on Github
+	//
+
+	gitFile, err := c.helpers.GH.CreateFile(ctx, req.AssignmentName, req.DropboxName, req.FileName, []byte(req.Content))
 	if err != nil {
 		c.logger.GalError("creating file", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	if err := c.helpers.DB.CreateFile(ctx, req.FileName, req.AssignmentName, consts.MASTER, *res.Commit.SHA); err != nil {
+	//
+	// Get assignment + dropbox for their IDs
+	//
+
+	assignment, err := c.helpers.DB.GetAssignmentByName(ctx, req.AssignmentName)
+	if err != nil {
+		c.logger.DalError("getting assignment", err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	dropbox, err := c.helpers.DB.GetDropbox(ctx, assignment.ID, req.DropboxName)
+	if err != nil {
+		c.logger.DalError("getting dropboxes", err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	//
+	// Create record of file in database
+	//
+
+	if err := c.helpers.DB.CreateFile(ctx, req.FileName, assignment.ID, dropbox.ID, *gitFile.Commit.SHA); err != nil {
 		c.logger.DalError("creating file", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
+
+	//
+	// Update stupid blob sha as Github requires
+	//
 
 	blobSHA, err := c.helpers.GH.GetMasterBlobSha(ctx, req.AssignmentName)
 	if err != nil {

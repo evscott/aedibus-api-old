@@ -84,6 +84,16 @@ func (c *Config) CreateDropbox(ctx context.Context, dropboxName, aid string) (*m
 }
 
 // TODO
+//
+func (c *Config) GetDropbox(ctx context.Context, aid, dropboxName string) (*models.Dropbox, error) {
+	dropbox := &models.Dropbox{
+		Name: dropboxName,
+		AID:  aid,
+	}
+	return dropbox, c.dal.Provider.GetDropboxByNameAndAssignment(ctx, dropbox)
+}
+
+// TODO
 func (c *Config) GetDropboxes(ctx context.Context, aid string) (models.Dropboxes, error) {
 	return c.dal.Provider.GetDropboxes(ctx, aid)
 }
