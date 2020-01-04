@@ -181,7 +181,7 @@ func (c *Config) CreateFile(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	if err := c.helpers.DB.UpdateAssignmentBlob(ctx, req.AssignmentName, *blobSHA); err != nil {
+	if err := c.helpers.DB.UpdateAssignmentBlob(ctx, assignment.ID, *blobSHA); err != nil {
 		c.logger.GalError("updating blob sha", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
