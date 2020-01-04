@@ -41,10 +41,20 @@ func (c *Config) GetAssignments(w http.ResponseWriter, r *http.Request) {
 	}
 
 	res := make(models.ResGetAssignments, len(assignments))
+
 	for i, a := range assignments {
 		res[i].ID = a.ID
 		res[i].Name = a.Name
 		res[i].CreatedAt = a.CreatedAt
+
+		// Get README.md content for each assignment
+		readme, err := c.helpers.GH.GetReadme(ctx, res[i].Name)
+		if err != nil {
+			c.logger.GalError("getting assignments from DB", err)
+			w.WriteHeader(status.Status(status.InternalServerError))
+		}
+
+		res[i].ReadmeContent = readme.Content
 	}
 
 	if err := marsh.MarshalResponse(res, w); err != nil {

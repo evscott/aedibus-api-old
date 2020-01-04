@@ -16,11 +16,11 @@ func (c *Config) GetAssignments(ctx context.Context) (models.Assignments, error)
 
 // TODO
 //
-func (c *Config) GetAssignmentByNameAssignment(ctx context.Context, name string) (*models.Assignment, error) {
+func (c *Config) GetAssignmentByName(ctx context.Context, name string) (*models.Assignment, error) {
 	assignment := &models.Assignment{
 		Name: name,
 	}
-	if err := c.dal.Provider.GetAnAssignment(ctx, assignment); err != nil {
+	if err := c.dal.Provider.GetAssignmentByName(ctx, assignment); err != nil {
 		return nil, err
 	}
 
@@ -123,4 +123,10 @@ func (c *Config) GetFile(ctx context.Context, did, aid, fileName string) (*model
 		DID:  did,
 	}
 	return file, c.dal.Provider.GetFile(ctx, file)
+}
+
+// TODO
+//
+func (c *Config) DeleteAssignment(ctx context.Context, assignment *models.Assignment) error {
+	return c.dal.Provider.DeleteAssignmentTx(ctx, assignment)
 }

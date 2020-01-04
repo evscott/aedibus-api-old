@@ -16,9 +16,9 @@ func (c *Config) UpdateAssignment(ctx context.Context, assignment *models.Assign
 	return err
 }
 
-func (c *Config) GetAnAssignment(ctx context.Context, assignment *models.Assignment) error {
+func (c *Config) GetAssignmentByName(ctx context.Context, assignment *models.Assignment) error {
 	return c.db.Model(assignment).
-		WherePK().
+		Where("name = ?", assignment.Name).
 		Select()
 }
 
@@ -26,4 +26,46 @@ func (c *Config) GetAssignments(ctx context.Context) (models.Assignments, error)
 	var assignments models.Assignments
 	return assignments, c.db.Model(&assignments).
 		Select()
+}
+
+func (c *Config) DeleteAssignmentTx(ctx context.Context, assignment *models.Assignment) error {
+	tx, err := c.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	// delete all File records
+	_, err = tx.Model(&models.File{}).
+		Where("aid = ?", assignment.ID).
+		Delete()
+	if err != nil {
+		return err
+	}
+
+	// delete all Dropbox records
+	_, err = tx.Model(&models.Dropbox{}).
+		Where("aid = ?", assignment.ID).
+		Delete()
+	if err != nil {
+		return err
+	}
+
+	// delete all Submission records
+	_, err = tx.Model(&models.Submission{}).
+		Where("aid = ?", assignment.ID).
+		Delete()
+	if err != nil {
+		return err
+	}
+
+	// delete assignment record
+	_, err = tx.Model(assignment).
+		WherePK().
+		Delete()
+
+	if err := tx.Commit(); err != nil {
+		return tx.Rollback()
+	}
+
+	return nil
 }

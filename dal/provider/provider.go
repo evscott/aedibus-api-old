@@ -23,8 +23,9 @@ type Provider interface {
 	// Assignments
 	CreateAssignment(ctx context.Context, assignment *models.Assignment) error
 	UpdateAssignment(ctx context.Context, assignment *models.Assignment) error
-	GetAnAssignment(ctx context.Context, assignment *models.Assignment) error
+	GetAssignmentByName(ctx context.Context, assignment *models.Assignment) error
 	GetAssignments(ctx context.Context) (models.Assignments, error)
+	DeleteAssignmentTx(ctx context.Context, assignment *models.Assignment) error
 	// Files
 	CreateFile(ctx context.Context, file *models.File) error
 	UpdateFile(ctx context.Context, file *models.File) error

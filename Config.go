@@ -64,7 +64,7 @@ func Init(ctx context.Context, router *mux.Router) *Config {
 		Spec:   &spec,
 		Router: router,
 		Server: &http.Server{
-			Handler:      cors.Default().Handler(router),
+			Handler:      cors.AllowAll().Handler(router),
 			Addr:         fmt.Sprintf(":%s", spec.SrvPort),
 			ReadTimeout:  time.Second * 10,
 			WriteTimeout: time.Second * 10,
