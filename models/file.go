@@ -22,3 +22,10 @@ type ResGetFile struct {
 	DropboxName    string `json:"dropboxName"`
 	Content        string `json:"content"`
 }
+
+type ReqCreateFile struct {
+	AssignmentName string `json:"assignmentName"`
+	DropboxName    string `json:"dropboxName"`
+	FileName       string `json:"fileName"`
+	Content        string `json:"content"`
+}

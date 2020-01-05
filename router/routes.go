@@ -11,6 +11,8 @@ const (
 	Assignment  Resource = "/assignment"
 	Assignments Resource = "/assignments"
 	Dropbox     Resource = "/dropbox"
+	Dropboxes   Resource = "/dropboxes"
+	Save        Resource = "/save"
 	Submit      Resource = "/submit"
 	Submission  Resource = "/submission"
 	File        Resource = "/file"

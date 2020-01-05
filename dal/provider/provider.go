@@ -29,9 +29,10 @@ type Provider interface {
 	// Files
 	CreateFile(ctx context.Context, file *models.File) error
 	UpdateFile(ctx context.Context, file *models.File) error
-	// Dropboxes
+	// List
 	CreateDropbox(ctx context.Context, dropbox *models.Dropbox) error
-	GetDropboxByNameAndAssignment(ctx context.Context, submission *models.Dropbox) error
+	GetDropboxByNameAndAssignment(ctx context.Context, dropbox *models.Dropbox) error
+	GetDropboxes(ctx context.Context, aid string) (models.Dropboxes, error)
 	// Submissions
 	CreateSubmission(ctx context.Context, submission *models.Submission) error
 	GetSubmission(ctx context.Context, submission *models.Submission) error

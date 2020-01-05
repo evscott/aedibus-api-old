@@ -34,6 +34,14 @@ func (c *Config) DeleteAssignmentTx(ctx context.Context, assignment *models.Assi
 		return err
 	}
 
+	// delete all Submission records
+	_, err = tx.Model(&models.Submission{}).
+		Where("aid = ?", assignment.ID).
+		Delete()
+	if err != nil {
+		return err
+	}
+
 	// delete all File records
 	_, err = tx.Model(&models.File{}).
 		Where("aid = ?", assignment.ID).
@@ -44,14 +52,6 @@ func (c *Config) DeleteAssignmentTx(ctx context.Context, assignment *models.Assi
 
 	// delete all Dropbox records
 	_, err = tx.Model(&models.Dropbox{}).
-		Where("aid = ?", assignment.ID).
-		Delete()
-	if err != nil {
-		return err
-	}
-
-	// delete all Submission records
-	_, err = tx.Model(&models.Submission{}).
 		Where("aid = ?", assignment.ID).
 		Delete()
 	if err != nil {

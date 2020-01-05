@@ -25,7 +25,8 @@ type Provider interface {
 	UpdateFile(ctx context.Context, assignmentName, dropboxName, fileName, commitID string) error
 	CreateFile(ctx context.Context, fileName, aid, did, commitID string) error
 	CreateDropbox(ctx context.Context, dropboxName, aid string) (*models.Dropbox, error)
-	GetDropboxByNameAndAssignment(ctx context.Context, dropboxName, assignmentName string) (*models.Dropbox, error)
+	GetDropbox(ctx context.Context, aid, dropboxName string) (*models.Dropbox, error)
+	GetDropboxes(ctx context.Context, aid string) (models.Dropboxes, error)
 	CreateSubmission(ctx context.Context, dropboxName, assignmentName string, prNumber int) error
 	GetSubmission(ctx context.Context, dropboxName, assignmentName string) (*models.Submission, error)
 	GetFile(ctx context.Context, dropboxName, assignmentName, fileName string) (*models.File, error)
