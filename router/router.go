@@ -34,7 +34,8 @@ func (c *Config) level1() {
 func (c *Config) level2() {
 	c.Router.HandleFunc(Path(Readme), c.Handlers.GetReadme).Methods(GET)
 	c.Router.HandleFunc(Path(Assignments), c.Handlers.GetAssignments).Methods(GET)
-	c.Router.HandleFunc(Path(File), c.Handlers.CreateFile).Methods(POST)
+	c.Router.HandleFunc(Path(Submission), c.Handlers.SubmitAssignment).Methods(POST)
+	c.Router.HandleFunc(Path(Submission), c.Handlers.SubmitAssignment).Methods(GET)
 }
 
 func (c *Config) level3() {

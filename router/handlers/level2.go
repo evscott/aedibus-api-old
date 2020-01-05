@@ -7,7 +7,6 @@ import (
 	"github.com/evscott/aedibus-api/models"
 	status "github.com/evscott/aedibus-api/shared/http-codes"
 	"github.com/evscott/aedibus-api/shared/marsh"
-	"github.com/evscott/aedibus-api/shared/utils"
 )
 
 // TODO
@@ -66,40 +65,66 @@ func (c *Config) GetAssignments(w http.ResponseWriter, r *http.Request) {
 // TODO
 //
 //
-func (c *Config) CreateDropboxFile(w http.ResponseWriter, r *http.Request) {
+func (c *Config) CreateFile(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
-	assignmentName := r.FormValue("assignmentName")
-	dropboxName := r.FormValue("dropboxName")
-	fileName := r.FormValue("fileName")
-
-	contents, err := utils.GetFileFromForm(r, fileName)
-	if err != nil {
-		c.logger.UtilsError("getting file from form", err)
+	req := &models.ReqCreateFile{}
+	if err := marsh.UnmarshalRequest(req, w, r); err != nil {
+		c.logger.MarshError("unmarshalling request", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	res, err := c.helpers.GH.CreateFile(ctx, assignmentName, dropboxName, fileName, contents)
+	//
+	// Create record of file on Github
+	//
+
+	gitFile, err := c.helpers.GH.CreateFile(ctx, req.AssignmentName, req.DropboxName, req.FileName, []byte(req.Content))
 	if err != nil {
 		c.logger.GalError("creating file", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	blobSHA, err := c.helpers.GH.GetMasterBlobSha(ctx, assignmentName)
+	//
+	// Get assignment + dropbox for their IDs
+	//
+
+	assignment, err := c.helpers.DB.GetAssignmentByName(ctx, req.AssignmentName)
+	if err != nil {
+		c.logger.DalError("getting assignment", err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	dropbox, err := c.helpers.DB.GetDropbox(ctx, assignment.ID, req.DropboxName)
+	if err != nil {
+		c.logger.DalError("getting dropboxes", err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	//
+	// Create record of file in database
+	//
+
+	if err := c.helpers.DB.CreateFile(ctx, req.FileName, assignment.ID, dropbox.ID, *gitFile.Commit.SHA); err != nil {
+		c.logger.DalError("creating file", err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	//
+	// Update stupid blob sha as Github requires
+	//
+
+	blobSHA, err := c.helpers.GH.GetMasterBlobSha(ctx, req.AssignmentName)
 	if err != nil {
 		c.logger.GalError("getting blob sha", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	if err := c.helpers.DB.UpdateAssignmentBlob(ctx, assignmentName, *blobSHA); err != nil {
-		c.logger.DalError("updating blob sha", err)
+	if err := c.helpers.DB.UpdateAssignmentBlob(ctx, assignment.ID, *blobSHA); err != nil {
+		c.logger.GalError("updating blob sha", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	if err := c.helpers.DB.CreateFile(ctx, fileName, assignmentName, dropboxName, *res.Commit.SHA); err != nil {
-		c.logger.DalError("creating file", err)
-		w.WriteHeader(status.Status(status.InternalServerError))
-	}
+	w.WriteHeader(status.Status(status.OK))
 }
 
 // TODO
@@ -107,20 +132,76 @@ func (c *Config) CreateDropboxFile(w http.ResponseWriter, r *http.Request) {
 func (c *Config) SubmitAssignment(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
-	req := &models.ReqPullRequest{}
+	req := &models.ReqSubmitAssignment{}
 	if err := marsh.UnmarshalRequest(req, w, r); err != nil {
 		c.logger.MarshError("unmarshalling request", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	res, err := c.helpers.GH.CreatePullRequest(ctx, req.DID, req.AID, req.DID, req.Body)
+	//
+	// Create record of file on Github
+	//
+
+	gitFile, err := c.helpers.GH.CreateFile(ctx, req.AssignmentName, req.DropboxName, req.FileName, []byte(req.Content))
+	if err != nil {
+		c.logger.GalError("creating file", err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	//
+	// Get assignment + dropbox for their IDs
+	//
+
+	assignment, err := c.helpers.DB.GetAssignmentByName(ctx, req.AssignmentName)
+	if err != nil {
+		c.logger.DalError("getting assignment", err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+	dropbox, err := c.helpers.DB.GetDropbox(ctx, assignment.ID, req.DropboxName)
+	if err != nil {
+		c.logger.DalError("getting dropboxes", err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	//
+	// Create record of file in database
+	//
+
+	if err := c.helpers.DB.CreateFile(ctx, req.FileName, assignment.ID, dropbox.ID, *gitFile.Commit.SHA); err != nil {
+		c.logger.DalError("creating file", err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	//
+	// Update stupid blob sha as Github requires
+	//
+
+	blobSHA, err := c.helpers.GH.GetMasterBlobSha(ctx, req.AssignmentName)
+	if err != nil {
+		c.logger.GalError("getting blob sha", err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+	if err := c.helpers.DB.UpdateAssignmentBlob(ctx, assignment.ID, *blobSHA); err != nil {
+		c.logger.GalError("updating blob sha", err)
+		w.WriteHeader(status.Status(status.InternalServerError))
+	}
+
+	//
+	// Create pull request and record of submission in database
+	//
+
+	res, err := c.helpers.GH.CreatePullRequest(ctx, req.DropboxName, req.AssignmentName, req.DropboxName, req.Body)
 	if err != nil {
 		c.logger.GalError("creating pull request", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 
-	if err := c.helpers.DB.CreateSubmission(ctx, req.DID, req.AID, *res.Number); err != nil {
+	if err := c.helpers.DB.CreateSubmission(ctx, dropbox.ID, assignment.ID, *res.Number); err != nil {
 		c.logger.DalError("creating submission", err)
 		w.WriteHeader(status.Status(status.InternalServerError))
 	}
 }
+
+// TODO
+//
+func (c *Config) GetSubmission(w http.ResponseWriter, r *http.Request) {}

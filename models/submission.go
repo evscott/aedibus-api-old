@@ -18,12 +18,21 @@ type SubmissionResults struct {
 	CreatedAt   time.Time `pg:"created_at"`
 }
 
-type ReqGetSubmissionResults struct {
-	AID string `json:"assignmentName"`
-	DID string `pg:"dropboxName"`
+type ReqGetSubmission struct {
+	AssignmentName string `json:"assignmentName"`
+	DropboxName    string `json:"dropboxName"`
 }
 
-type ResGetSubmissionResults struct {
-	TestsRan    int `json:"numberOfTests"`
-	TestsPassed int `json:"testsPassed"`
+type ResGetSubmission struct {
+	AssignmentName string `json:"assignmentName"`
+	DropboxName    string `json:"dropboxName"`
+	Content        string `json:"content"`
+}
+
+type ReqSubmitAssignment struct {
+	AssignmentName string `json:"assignmentName"`
+	DropboxName    string `json:"dropboxName"`
+	Body           string `json:"body"`
+	FileName       string `json:"fileName"`
+	Content        string `json:"content"`
 }

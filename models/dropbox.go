@@ -14,12 +14,6 @@ type ReqCreateDropbox struct {
 }
 
 type ResGetDropboxes struct {
-	Count     int       `json:"count"`
-	Dropboxes Dropboxes `json:"dropboxes"`
-}
-
-type ReqPullRequest struct {
-	DID  string `json:"did"`
-	AID  string `json:"aid"`
-	Body string `json:"body"`
+	AssignmentName string    `json:"assignmentName"`
+	List           Dropboxes `json:"list"`
 }

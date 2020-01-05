@@ -127,71 +127,6 @@ func (c *Config) DeleteAssignment(w http.ResponseWriter, r *http.Request) {
 // TODO
 //
 //
-func (c *Config) CreateFile(w http.ResponseWriter, r *http.Request) {
-	ctx := context.Background()
-
-	req := &models.ReqCreateFile{}
-	if err := marsh.UnmarshalRequest(req, w, r); err != nil {
-		c.logger.MarshError("unmarshalling request", err)
-		w.WriteHeader(status.Status(status.InternalServerError))
-	}
-
-	//
-	// Create record of file on Github
-	//
-
-	gitFile, err := c.helpers.GH.CreateFile(ctx, req.AssignmentName, req.DropboxName, req.FileName, []byte(req.Content))
-	if err != nil {
-		c.logger.GalError("creating file", err)
-		w.WriteHeader(status.Status(status.InternalServerError))
-	}
-
-	//
-	// Get assignment + dropbox for their IDs
-	//
-
-	assignment, err := c.helpers.DB.GetAssignmentByName(ctx, req.AssignmentName)
-	if err != nil {
-		c.logger.DalError("getting assignment", err)
-		w.WriteHeader(status.Status(status.InternalServerError))
-	}
-
-	dropbox, err := c.helpers.DB.GetDropbox(ctx, assignment.ID, req.DropboxName)
-	if err != nil {
-		c.logger.DalError("getting dropboxes", err)
-		w.WriteHeader(status.Status(status.InternalServerError))
-	}
-
-	//
-	// Create record of file in database
-	//
-
-	if err := c.helpers.DB.CreateFile(ctx, req.FileName, assignment.ID, dropbox.ID, *gitFile.Commit.SHA); err != nil {
-		c.logger.DalError("creating file", err)
-		w.WriteHeader(status.Status(status.InternalServerError))
-	}
-
-	//
-	// Update stupid blob sha as Github requires
-	//
-
-	blobSHA, err := c.helpers.GH.GetMasterBlobSha(ctx, req.AssignmentName)
-	if err != nil {
-		c.logger.GalError("getting blob sha", err)
-		w.WriteHeader(status.Status(status.InternalServerError))
-	}
-
-	if err := c.helpers.DB.UpdateAssignmentBlob(ctx, assignment.ID, *blobSHA); err != nil {
-		c.logger.GalError("updating blob sha", err)
-		w.WriteHeader(status.Status(status.InternalServerError))
-	}
-
-	w.WriteHeader(status.Status(status.OK))
-}
-
-// TODO
-//
-//
 func (c *Config) GetFileContents(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
@@ -271,8 +206,8 @@ func (c *Config) GetDropboxes(w http.ResponseWriter, r *http.Request) {
 	}
 
 	res := &models.ResGetDropboxes{
-		Count:     len(dropboxes),
-		Dropboxes: dropboxes,
+		AssignmentName: assignment.Name,
+		List:           dropboxes,
 	}
 
 	if err := marsh.MarshalResponse(res, w); err != nil {
